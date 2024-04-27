@@ -29,11 +29,11 @@ namespace detail
      * @return The result of the fold-operation.
      */
     template <typename T, typename F, typename B>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) fold(
+    SUPERTUPLE_CONSTEXPR decltype(auto) fold(
         T&&, F&&, B&& base
       , std::index_sequence<>
     ) {
-        return base;
+        return std::remove_reference_t<B>(base);
     }
 
     /**
@@ -49,15 +49,13 @@ namespace detail
      * @return The result of the fold-operation.
      */
     template <typename T, typename F, typename B, size_t I, size_t ...J>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) fold(
+    SUPERTUPLE_CONSTEXPR decltype(auto) fold(
         T&& t, F&& lambda, B&& base
       , std::index_sequence<I, J...>
     ) {
         return detail::fold(
             t, lambda
-          , detail::invoke(
-                lambda, base
-              , operation::get<I>(t))
+          , detail::invoke(lambda, base, operation::get<I>(t))
           , std::index_sequence<J...>()
         );
     }
@@ -77,7 +75,7 @@ inline namespace operation
      * @return The fold resulting value.
      */
     template <typename F, typename B, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) foldl(
+    SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , B&& base
@@ -98,7 +96,7 @@ inline namespace operation
      * @return The fold resulting value.
      */
     template <typename F, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) foldl(
+    SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
         const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
       , F&& lambda
     ) {
@@ -120,14 +118,14 @@ inline namespace operation
      * @return The fold resulting value.
      */
     template <typename F, typename B, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) foldr(
+    SUPERTUPLE_CONSTEXPR decltype(auto) foldr(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , B&& base
     ) {
         constexpr size_t J = sizeof...(I);
         return detail::fold(
-            t, lambda, base
+            t, detail::flip(lambda), base
           , std::index_sequence<(J-I-1)...>()
         );
     }
@@ -142,13 +140,13 @@ inline namespace operation
      * @return The fold resulting value.
      */
     template <typename F, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) foldr(
+    SUPERTUPLE_CONSTEXPR decltype(auto) foldr(
         const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
       , F&& lambda
     ) {
         constexpr size_t J = 1 + sizeof...(I);
         return detail::fold(
-            t, lambda, operation::last(t)
+            t, detail::flip(lambda), operation::last(t)
           , std::index_sequence<(J-I-1)...>()
         );
     }

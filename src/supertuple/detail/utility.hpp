@@ -31,9 +31,9 @@ namespace detail
      * @return The given return value.
      */
     template <typename T, typename ...U>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr T swallow(T&& target, U&&...) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) swallow(T&& target, U&&...) noexcept
     {
-        return target;
+        return std::forward<decltype(target)>(target);
     }
 
     /**
@@ -43,7 +43,8 @@ namespace detail
      * @return The functor invokation result.
      */
     template <typename F>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) invoke(const F& lambda) {
+    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda)
+    {
         return (lambda)();
     }
 
@@ -59,7 +60,7 @@ namespace detail
      * @return The functor invokation result.
      */
     template <typename F, typename O, typename ...A>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
+    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
     {
         if constexpr (std::is_member_function_pointer<F>::value) {
             return (object.*lambda)(std::forward<decltype(args)>(args)...);
@@ -69,6 +70,22 @@ namespace detail
               , std::forward<decltype(args)>(args)...
             );
         }
+    }
+
+    /**
+     * Flips the parameters of a binary functor.
+     * @tparam F The functor type.
+     * @param lambda The functor to have its parameters order flipped.
+     * @return The given functor with flipped parameter order.
+     */
+    template <typename F>
+    SUPERTUPLE_CONSTEXPR decltype(auto) flip(const F& lambda)
+    {
+        return [&](auto&& x, auto&& y) constexpr -> decltype(auto) {
+            return (lambda)(
+                std::forward<decltype(y)>(y)
+              , std::forward<decltype(x)>(x));
+        };
     }
 }
 

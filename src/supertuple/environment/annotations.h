@@ -19,3 +19,11 @@
 #else
   #define SUPERTUPLE_CUDA_ENABLED
 #endif
+
+/*
+ * Macros for applying annotations and qualifiers to functions and methods. As the
+ * minimum required language version is C++17, we assume it is guaranteed that all
+ * compilers will have `inline` and `constexpr` implemented.
+ */
+#define SUPERTUPLE_INLINE SUPERTUPLE_CUDA_ENABLED inline
+#define SUPERTUPLE_CONSTEXPR SUPERTUPLE_INLINE constexpr
