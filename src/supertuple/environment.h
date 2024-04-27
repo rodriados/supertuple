@@ -41,15 +41,6 @@
 #endif
 
 /*
- * If not running in production mode, we should include macros used on examples
- * and tests as to notate which example or test is curring in execution, if any.
- */
-#if SUPERTUPLE_BUILD != SUPERTUPLE_BUILD_PRODUCTION
-  #include <cstdio>
-  #define SUPERTUPLE_EXAMPLE(i) printf("Running example #%d on " __FILE__ "\n", i);
-#endif
-
-/*
  * Checks the current compiler's C++ language level. As the majority of this software's
  * codebase is written in C++, we must check whether its available or not.
  */

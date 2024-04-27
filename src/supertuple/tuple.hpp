@@ -243,7 +243,7 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
           : ntuple_t (indexer_t(), std::forward<decltype(array)>(array))
         {}
 
-        using underlying_t::tuple_t;
+        using underlying_t::underlying_t;
 
         SUPERTUPLE_INLINE ntuple_t& operator=(const ntuple_t&) = default;
         SUPERTUPLE_INLINE ntuple_t& operator=(ntuple_t&&) = default;
@@ -299,7 +299,7 @@ class pair_t : public tuple_t<T, U>
         SUPERTUPLE_CONSTEXPR pair_t(const pair_t&) = default;
         SUPERTUPLE_CONSTEXPR pair_t(pair_t&&) = default;
 
-        using underlying_t::tuple_t;
+        using underlying_t::underlying_t;
 
         SUPERTUPLE_INLINE pair_t& operator=(const pair_t&) = default;
         SUPERTUPLE_INLINE pair_t& operator=(pair_t&&) = default;
