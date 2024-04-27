@@ -23,7 +23,7 @@ inline namespace operation
      * @return The leaf's value.
      */
     template <size_t I, typename T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr T& get(detail::leaf_t<I, T>& leaf) noexcept
+    SUPERTUPLE_CONSTEXPR T& get(detail::leaf_t<I, T>& leaf) noexcept
     {
         return leaf.value;
     }
@@ -36,7 +36,7 @@ inline namespace operation
      * @return The const-qualified leaf's value.
      */
     template <size_t I, typename T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr const T& get(const detail::leaf_t<I, T>& leaf) noexcept
+    SUPERTUPLE_CONSTEXPR const T& get(const detail::leaf_t<I, T>& leaf) noexcept
     {
         return leaf.value;
     }
@@ -49,7 +49,7 @@ inline namespace operation
      * @return The leaf value's move reference.
      */
     template <size_t I, typename T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) get(detail::leaf_t<I, T>&& leaf) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) get(detail::leaf_t<I, T>&& leaf) noexcept
     {
         return std::forward<decltype(leaf.value)>(leaf.value);
     }

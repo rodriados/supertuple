@@ -36,7 +36,7 @@ class tuple_t : public tuple_t<detail::identity_t<std::make_index_sequence<sizeo
         typedef tuple_t<identity_t, T...> underlying_t;
 
     public:
-        using underlying_t::tuple_t;
+        using underlying_t::underlying_t;
         using underlying_t::operator=;
 };
 
@@ -48,7 +48,7 @@ namespace detail
      * @tparam T The extracted tuple element type.
      */
     template <size_t I, typename T>
-    SUPERTUPLE_CUDA_ENABLED constexpr auto type(leaf_t<I, T>) noexcept
+    SUPERTUPLE_CONSTEXPR auto type(leaf_t<I, T>) noexcept
     -> typename leaf_t<I, T>::element_t;
 
     /**
@@ -57,7 +57,7 @@ namespace detail
      * @tparam I The tuple's type index sequence.
      */
     template <typename T, size_t ...I>
-    SUPERTUPLE_CUDA_ENABLED constexpr auto repeater(std::index_sequence<I...>) noexcept
+    SUPERTUPLE_CONSTEXPR auto repeater(std::index_sequence<I...>) noexcept
     -> tuple_t<typename identity_t<T, I>::type...>;
 }
 
@@ -84,9 +84,9 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         using element_t = decltype(detail::type<J>(std::declval<tuple_t>()));
 
     public:
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t() = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t(const tuple_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t(tuple_t&&) = default;
+        SUPERTUPLE_CONSTEXPR tuple_t() = default;
+        SUPERTUPLE_CONSTEXPR tuple_t(const tuple_t&) = default;
+        SUPERTUPLE_CONSTEXPR tuple_t(tuple_t&&) = default;
 
         /**
          * Creates a new tuple instance from a list of foreign values.
@@ -97,7 +97,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
             typename ...U
           , typename std::enable_if<sizeof...(U) == sizeof...(T), int>::type = 0
         >
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t(U&&... value)
+        SUPERTUPLE_CONSTEXPR tuple_t(U&&... value)
           : detail::leaf_t<I, T> (std::forward<decltype(value)>(value))...
         {}
 
@@ -107,7 +107,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @param other The foreign tuple which values must be copied from.
          */
         template <typename ...U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t(const tuple_t<identity_t, U...>& other)
+        SUPERTUPLE_CONSTEXPR tuple_t(const tuple_t<identity_t, U...>& other)
           : detail::leaf_t<I, T> (static_cast<const detail::leaf_t<I, U>&>(other))...
         {}
 
@@ -117,12 +117,12 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @param other The foreign tuple which values must be moved from.
          */
         template <typename ...U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr tuple_t(tuple_t<identity_t, U...>&& other)
+        SUPERTUPLE_CONSTEXPR tuple_t(tuple_t<identity_t, U...>&& other)
           : detail::leaf_t<I, T> (std::forward<detail::leaf_t<I, U>>(other))...
         {}
 
-        SUPERTUPLE_CUDA_ENABLED inline tuple_t& operator=(const tuple_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline tuple_t& operator=(tuple_t&&) = default;
+        SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t&) = default;
+        SUPERTUPLE_INLINE tuple_t& operator=(tuple_t&&) = default;
 
         /**
          * Copies the values from a foreign tuple instance.
@@ -131,7 +131,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @return The current tuple instance.
          */
         template <typename ...U>
-        SUPERTUPLE_CUDA_ENABLED inline tuple_t& operator=(const tuple_t<identity_t, U...>& other)
+        SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t<identity_t, U...>& other)
         {
             return swallow(*this, detail::leaf_t<I, T>::operator=(other)...);
         }
@@ -143,7 +143,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @return The current tuple instance.
          */
         template <typename ...U>
-        SUPERTUPLE_CUDA_ENABLED inline tuple_t& operator=(tuple_t<identity_t, U...>&& other)
+        SUPERTUPLE_INLINE tuple_t& operator=(tuple_t<identity_t, U...>&& other)
         {
             return swallow(*this, detail::leaf_t<I, T>::operator=(std::forward<decltype(other)>(other))...);
         }
@@ -154,7 +154,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @return The member's value.
          */
         template <size_t J>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr auto get() noexcept -> decltype(auto)
+        SUPERTUPLE_CONSTEXPR auto get() noexcept -> decltype(auto)
         {
             return operation::get<J>(*this);
         }
@@ -165,7 +165,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @return The const-qualified member's value.
          */
         template <size_t J>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr auto get() const noexcept -> decltype(auto)
+        SUPERTUPLE_CONSTEXPR auto get() const noexcept -> decltype(auto)
         {
             return operation::get<J>(*this);
         }
@@ -176,7 +176,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          * @tparam U The member's new value's type.
          */
         template <size_t J, typename U>
-        SUPERTUPLE_CUDA_ENABLED inline void set(U&& value)
+        SUPERTUPLE_INLINE void set(U&& value)
         {
             operation::set<J>(*this, std::forward<decltype(value)>(value));
         }
@@ -213,9 +213,9 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
         typedef decltype(detail::repeater<T>(indexer_t())) underlying_t;
 
     public:
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t() noexcept = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(const ntuple_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(ntuple_t&&) = default;
+        SUPERTUPLE_CONSTEXPR ntuple_t() noexcept = default;
+        SUPERTUPLE_CONSTEXPR ntuple_t(const ntuple_t&) = default;
+        SUPERTUPLE_CONSTEXPR ntuple_t(ntuple_t&&) = default;
 
         /**
          * Creates a new tuple from a raw foreign array.
@@ -229,7 +229,7 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
                 std::is_array<typename std::remove_reference<U>::type>()
             >::type
         >
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(U&& array)
+        SUPERTUPLE_CONSTEXPR ntuple_t(U&& array)
           : ntuple_t (indexer_t(), array)
         {}
 
@@ -239,14 +239,14 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
          * @param array The array to move into the tuple's values.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(U (&&array)[N])
+        SUPERTUPLE_CONSTEXPR ntuple_t(U (&&array)[N])
           : ntuple_t (indexer_t(), std::forward<decltype(array)>(array))
         {}
 
         using underlying_t::tuple_t;
 
-        SUPERTUPLE_CUDA_ENABLED inline ntuple_t& operator=(const ntuple_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline ntuple_t& operator=(ntuple_t&&) = default;
+        SUPERTUPLE_INLINE ntuple_t& operator=(const ntuple_t&) = default;
+        SUPERTUPLE_INLINE ntuple_t& operator=(ntuple_t&&) = default;
 
         using underlying_t::operator=;
 
@@ -258,7 +258,7 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
          * @param array The array to inline.
          */
         template <typename U, size_t ...I>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(std::index_sequence<I...>, U&& array)
+        SUPERTUPLE_CONSTEXPR ntuple_t(std::index_sequence<I...>, U&& array)
           : underlying_t (array[I]...)
         {}
 
@@ -269,7 +269,7 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
          * @param array The array to be moved.
          */
         template <typename U, size_t ...I>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr ntuple_t(std::index_sequence<I...>, U (&&array)[N])
+        SUPERTUPLE_CONSTEXPR ntuple_t(std::index_sequence<I...>, U (&&array)[N])
           : underlying_t (std::move(array[I])...)
         {}
 };
@@ -295,14 +295,14 @@ class pair_t : public tuple_t<T, U>
         typedef tuple_t<T, U> underlying_t;
 
     public:
-        SUPERTUPLE_CUDA_ENABLED inline constexpr pair_t() noexcept = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr pair_t(const pair_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr pair_t(pair_t&&) = default;
+        SUPERTUPLE_CONSTEXPR pair_t() noexcept = default;
+        SUPERTUPLE_CONSTEXPR pair_t(const pair_t&) = default;
+        SUPERTUPLE_CONSTEXPR pair_t(pair_t&&) = default;
 
         using underlying_t::tuple_t;
 
-        SUPERTUPLE_CUDA_ENABLED inline pair_t& operator=(const pair_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline pair_t& operator=(pair_t&&) = default;
+        SUPERTUPLE_INLINE pair_t& operator=(const pair_t&) = default;
+        SUPERTUPLE_INLINE pair_t& operator=(pair_t&&) = default;
 
         using underlying_t::operator=;
 
@@ -310,7 +310,7 @@ class pair_t : public tuple_t<T, U>
          * Retrieves the first element of the pair.
          * @return The pair's first element's reference.
          */
-        SUPERTUPLE_CUDA_ENABLED inline constexpr auto first() const noexcept -> const T&
+        SUPERTUPLE_CONSTEXPR auto first() const noexcept -> const T&
         {
             return operation::get<0>(*this);
         }
@@ -319,7 +319,7 @@ class pair_t : public tuple_t<T, U>
          * Retrieves the second element of the pair.
          * @return The pair's second element's reference.
          */
-        SUPERTUPLE_CUDA_ENABLED inline constexpr auto second() const noexcept -> const U&
+        SUPERTUPLE_CONSTEXPR auto second() const noexcept -> const U&
         {
             return operation::get<1>(*this);
         }

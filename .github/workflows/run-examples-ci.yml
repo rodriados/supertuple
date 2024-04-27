@@ -1,0 +1,23 @@
+name: run-examples-ci
+
+on: [push, pull_request]
+
+jobs:
+  example-runner:
+    strategy:
+      matrix:
+        compiler: [g++, clang++]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparing compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang
+
+      - name: Running examples
+        run: |
+          CXX=${{matrix.compiler}} make build-examples
+          for example in bin/examples/*; do $example; done
+          make clean

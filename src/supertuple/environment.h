@@ -32,12 +32,21 @@
 #elif defined(TESTING)
   #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_TESTING
   #define SUPERTUPLE_ENVIRONMENT "Testing"
-#elif defined(PRODUCTION)
-  #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_PRODUCTION
-  #define SUPERTUPLE_ENVIRONMENT "Production"
-#else
+#elif defined(DEV) || defined(DEVELOPMENT)
   #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_DEV
   #define SUPERTUPLE_ENVIRONMENT "Development"
+#else
+  #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_PRODUCTION
+  #define SUPERTUPLE_ENVIRONMENT "Production"
+#endif
+
+/*
+ * If not running in production mode, we should include macros used on examples
+ * and tests as to notate which example or test is curring in execution, if any.
+ */
+#if SUPERTUPLE_BUILD != SUPERTUPLE_BUILD_PRODUCTION
+  #include <cstdio>
+  #define SUPERTUPLE_EXAMPLE(i) printf("Running example #%d on " __FILE__ "\n", i);
 #endif
 
 /*

@@ -27,15 +27,15 @@ namespace detail
         typedef T element_t;
         element_t value;
 
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t() = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(const leaf_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(leaf_t&&) = default;
+        SUPERTUPLE_CONSTEXPR leaf_t() = default;
+        SUPERTUPLE_CONSTEXPR leaf_t(const leaf_t&) = default;
+        SUPERTUPLE_CONSTEXPR leaf_t(leaf_t&&) = default;
 
         /**
          * Constructs a new tuple leaf.
          * @param value The value to be contained by the leaf.
          */
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(const element_t& value)
+        SUPERTUPLE_CONSTEXPR leaf_t(const element_t& value)
           : value (value)
         {}
 
@@ -45,7 +45,7 @@ namespace detail
          * @param value The foreign value to be moved into the leaf.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(U&& value)
+        SUPERTUPLE_CONSTEXPR leaf_t(U&& value)
           : value (std::forward<decltype(value)>(value))
         {}
 
@@ -55,7 +55,7 @@ namespace detail
          * @param other The leaf to copy from.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(const leaf_t<I, U>& other)
+        SUPERTUPLE_CONSTEXPR leaf_t(const leaf_t<I, U>& other)
           : value (other.value)
         {}
 
@@ -65,12 +65,12 @@ namespace detail
          * @param other The leaf to move from.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline constexpr leaf_t(leaf_t<I, U>&& other)
+        SUPERTUPLE_CONSTEXPR leaf_t(leaf_t<I, U>&& other)
           : value (std::forward<decltype(other.value)>(other.value))
         {}
 
-        SUPERTUPLE_CUDA_ENABLED inline leaf_t& operator=(const leaf_t&) = default;
-        SUPERTUPLE_CUDA_ENABLED inline leaf_t& operator=(leaf_t&&) = default;
+        SUPERTUPLE_INLINE leaf_t& operator=(const leaf_t&) = default;
+        SUPERTUPLE_INLINE leaf_t& operator=(leaf_t&&) = default;
 
         /**
          * Copies the contents of a foreign tuple's leaf.
@@ -79,7 +79,7 @@ namespace detail
          * @return The current leaf instance.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline leaf_t& operator=(const leaf_t<I, U>& other)
+        SUPERTUPLE_INLINE leaf_t& operator=(const leaf_t<I, U>& other)
         {
             return swallow(*this, value = other.value);
         }
@@ -91,7 +91,7 @@ namespace detail
          * @return The current leaf instance.
          */
         template <typename U>
-        SUPERTUPLE_CUDA_ENABLED inline leaf_t& operator=(leaf_t<I, U>&& other)
+        SUPERTUPLE_INLINE leaf_t& operator=(leaf_t<I, U>&& other)
         {
             return swallow(*this, value = std::forward<decltype(other.value)>(other.value));
         }

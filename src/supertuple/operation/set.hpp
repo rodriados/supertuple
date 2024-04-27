@@ -23,7 +23,7 @@ inline namespace operation
      * @param value The value to move into the leaf.
      */
     template <size_t I, typename T, typename U>
-    SUPERTUPLE_CUDA_ENABLED inline void set(detail::leaf_t<I, T>& leaf, U&& value)
+    SUPERTUPLE_INLINE void set(detail::leaf_t<I, T>& leaf, U&& value)
     {
         leaf.value = std::forward<decltype(value)>(value);
     }
