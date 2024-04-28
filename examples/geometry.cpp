@@ -7,18 +7,21 @@
 #include <cmath>
 #include <cstdint>
 #include <cassert>
+
+#include <iostream>
+#include <functional>
+#include <string>
 #include <utility>
 
 #include <supertuple.h>
 
-#include "examples.h"
-
 namespace st = supertuple;
 
 /*
- * This example uses tuples to implement geometry operations, for points and vectors.
- * These operations may be optimized by the compiler and even be executed on compile-time
- * if possible, while also producing functional and expressive code.
+ * This example uses tuples to implement geometry and linear algebra operations,
+ * for points and vectors. These operations may be optimized by the compiler and
+ * even be executed on compile-time if possible, while also producing functional
+ * and expressive code.
  * @since 1.0
  */
 
@@ -446,48 +449,43 @@ namespace geometry
 SUPERTUPLE_DISABLE_GCC_WARNING_END("-Wpedantic")
 
 /**
- * The example entry point.
+ * Formats a point to an output stream.
+ * @tparam D The point's dimensionality value.
+ * @tparam T The point's coordinate type.
+ * @param stream The stream to format the point to.
+ * @param point The point to be formatted.
+ * @return The resulting output stream.
+ */
+template <size_t D, typename T>
+inline std::ostream& operator<<(std::ostream& stream, const geometry::point_t<D, T>& point) noexcept
+{
+    size_t i = 0;
+    return st::foldl(st::tie(point.value), [&](std::reference_wrapper<std::ostream> os, const auto& element) {
+        const char *start = !i ? "(" : ", ";
+        const char *end   = (++i < D) ? "" : ")";
+        return std::ref(os.get() << start << element << end);
+    }, std::ref(stream)).get();
+}
+
+/**
+ * This example show how distinct geometry and linear algebra operations can be implemented
+ * declaratively using supertuples.
  * @since 1.0
  */
 int main()
 {
-    SUPERTUPLE_EXAMPLE(1) {
-        const auto p1 = geometry::point_t(1, 2, 3);
-        const auto p2 = geometry::point_t(2, 2, 3);
-        SUPERTUPLE_PRINT("p1:(%d, %d, %d)", p1.x, p1.y, p1.z);
-        SUPERTUPLE_PRINT("p2:(%d, %d, %d)", p2.x, p2.y, p2.z);
+    const auto p1 = geometry::point_t(3, 2, 1);
+    const auto p2 = geometry::point_t(4, 5, 2);
+    std::cout << "P1: " << p1 << std::endl;
+    std::cout << "P2: " << p2 << std::endl;
 
-        const auto distance = geometry::distance(p1, p2);
-        SUPERTUPLE_PRINT("distance(p1, p2) = %lf", distance);
+    const auto l1 = geometry::length(p1);
+    const auto l2 = geometry::length(p2);
+    std::cout << "length of P1: " << l1 << std::endl;
+    std::cout << "length of P2: " << l2 << std::endl;
 
-        assert(distance == 1.);
-    }
-
-    SUPERTUPLE_EXAMPLE(2) {
-        const auto p1 = geometry::point_t(0, 1, 0);
-        const auto p2 = geometry::point_t(0, 0, 1);
-        SUPERTUPLE_PRINT("p1:(%d, %d, %d)", p1.x, p1.y, p1.z);
-        SUPERTUPLE_PRINT("p2:(%d, %d, %d)", p2.x, p2.y, p2.z);
-
-        const auto p3 = geometry::cross(p1, p2);
-        SUPERTUPLE_PRINT("cross(p1, p2) = (%d, %d, %d)", p3.x, p3.y, p3.z);
-
-        assert(p3.x == 1.);
-        assert(p3.y == 0.);
-        assert(p3.z == 0.);
-    }
-
-    SUPERTUPLE_EXAMPLE(3) {
-        const auto p1 = geometry::point_t(0, 0, 7);
-        SUPERTUPLE_PRINT("p1:(%d, %d, %d)", p1.x, p1.y, p1.z);
-
-        const auto p2 = geometry::normalize(p1);
-        SUPERTUPLE_PRINT("p2:(%.1lf, %.1lf, %.1lf)", p2.x, p2.y, p2.z);
-
-        assert(p2.x == 0.);
-        assert(p2.y == 0.);
-        assert(p2.z == 1.);
-    }
+    const auto distance = geometry::distance(p1, p2);
+    std::cout << "distance between P1 and P2: " << distance << std::endl;
 
     return 0;
 }

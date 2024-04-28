@@ -1,6 +1,7 @@
 obj/
 build/
 .idea/
+.vscode/
 bin/
 
 *.d
