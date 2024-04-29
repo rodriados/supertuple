@@ -73,7 +73,7 @@ namespace detail
     }
 
     /**
-     * Flips the parameters of a binary functor.
+     * Flips the first two parameters of a functor.
      * @tparam F The functor type.
      * @param lambda The functor to have its parameters order flipped.
      * @return The given functor with flipped parameter order.
@@ -81,10 +81,11 @@ namespace detail
     template <typename F>
     SUPERTUPLE_CONSTEXPR decltype(auto) flip(const F& lambda)
     {
-        return [&](auto&& x, auto&& y) constexpr -> decltype(auto) {
+        return [&](auto&& x, auto&& y, auto&&... z) constexpr -> decltype(auto) {
             return (lambda)(
                 std::forward<decltype(y)>(y)
-              , std::forward<decltype(x)>(x));
+              , std::forward<decltype(x)>(x)
+              , std::forward<decltype(z)>(z)...);
         };
     }
 }

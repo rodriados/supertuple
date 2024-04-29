@@ -459,12 +459,12 @@ SUPERTUPLE_DISABLE_GCC_WARNING_END("-Wpedantic")
 template <size_t D, typename T>
 inline std::ostream& operator<<(std::ostream& stream, const geometry::point_t<D, T>& point) noexcept
 {
-    size_t i = 0;
-    return st::foldl(st::tie(point.value), [&](std::reference_wrapper<std::ostream> os, const auto& element) {
-        const char *start = !i ? "(" : ", ";
-        const char *end   = (++i < D) ? "" : ")";
-        return std::ref(os.get() << start << element << end);
-    }, std::ref(stream)).get();
+    size_t index = 0;
+    const auto f = [&](std::ostream& os, const auto& element) -> std::ostream& {
+        const char *start = (index == 0)  ? "(" : ", ";
+        const char *end   = (++index < D) ? ""  : ")";
+        return os << start << element << end; };
+    return st::foldl(st::tie(point.value), f, stream);
 }
 
 /**

@@ -35,7 +35,7 @@ namespace detail
         T&&, F&&, B&& base
       , std::index_sequence<>
     ) {
-        return tuple_t(std::remove_reference_t<B>(base));
+        return tuple_t<B>(base);
     }
 
     /**

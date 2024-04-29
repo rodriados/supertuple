@@ -33,7 +33,7 @@ namespace detail
         T&&, F&&, B&& base
       , std::index_sequence<>
     ) {
-        return std::remove_reference_t<B>(base);
+        return (B) base;
     }
 
     /**
