@@ -7,8 +7,8 @@
 #pragma once
 
 /**
- * The preprocessor macros encoding the current Museqa library release version.
- * This is guaranteed to change with every Museqa release.
+ * The preprocessor macros encoding the current SuperTuple library release version.
+ * This is guaranteed to change with every SuperTuple release.
  */
 #define SUPERTUPLE_VERSION 10000
 

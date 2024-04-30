@@ -1,0 +1,7 @@
+[output]
+outfile = dist/supertuple.h
+
+[project]
+workingdir = src
+namespace = supertuple
+entrypoint = supertuple.h

@@ -7,6 +7,7 @@ NAME = supertuple
 INCDIR = src
 SRCDIR = src
 EXPDIR = examples
+DSTDIR = dist
 TSTDIR = test
 
 OBJDIR = obj
@@ -40,11 +41,16 @@ clean-examples:
 	@rm -rf $(BINDIR)/$(EXPDIR)
 	@rm -rf $(OBJDIR)/$(EXPDIR)
 
+distribute:
+	@mkdir -p $(DSTDIR)
+	python pack.py
+
 clean:
 	@rm -rf $(BINDIR)
 	@rm -rf $(OBJDIR)
+	@rm -rf $(DSTDIR)
 
-.PHONY: all clean examples
+.PHONY: all clean distribute examples
 .PHONY: prepare-examples build-examples clean-examples
 
 # Creates dependency on header files. This is valuable so that whenever a header

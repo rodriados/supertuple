@@ -1,0 +1,28 @@
+name: pack-source-code
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  source-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparing environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python
+
+      - name: Packing source code
+        run: |
+          make distribute
+
+      - name: Archive distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: supertuple-packed
+          path: |
+            dist
