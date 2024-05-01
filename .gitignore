@@ -13,6 +13,7 @@ dist/
 
 run
 test.cpp
+catch.hpp
 .gdb_history
 .gdbinit
 *junkyard*

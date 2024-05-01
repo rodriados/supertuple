@@ -13,7 +13,10 @@
 #include <string>
 #include <utility>
 
-#include <supertuple.h>
+#define CATCH_CONFIG_MAIN
+
+#include <catch.hpp>
+#include <supertuple.hpp>
 
 namespace st = supertuple;
 
@@ -468,24 +471,46 @@ inline std::ostream& operator<<(std::ostream& stream, const geometry::point_t<D,
 }
 
 /**
- * This example show how distinct geometry and linear algebra operations can be implemented
- * declaratively using supertuples.
+ * An example test case for operations with 2-dimensional points or vectors.
  * @since 1.0
  */
-int main()
+TEST_CASE("operations for 2-dimensional geometry", "[geometry]")
 {
-    const auto p1 = geometry::point_t(3, 2, 1);
-    const auto p2 = geometry::point_t(4, 5, 2);
-    std::cout << "P1: " << p1 << std::endl;
-    std::cout << "P2: " << p2 << std::endl;
+    const auto p1 = geometry::point_t(1, 2);
+    const auto p2 = geometry::point_t(5, 7);
 
-    const auto l1 = geometry::length(p1);
-    const auto l2 = geometry::length(p2);
-    std::cout << "length of P1: " << l1 << std::endl;
-    std::cout << "length of P2: " << l2 << std::endl;
+    REQUIRE(p1 + p2 == geometry::point_t(6, 9));
+    REQUIRE(p2 - p1 == geometry::point_t(4, 5));
 
-    const auto distance = geometry::distance(p1, p2);
-    std::cout << "distance between P1 and P2: " << distance << std::endl;
+    REQUIRE(4 * p1 == geometry::point_t(4, 8));
+    REQUIRE(p2 * 2 == geometry::point_t(10, 14));
 
-    return 0;
+    REQUIRE(geometry::length(p1) == std::sqrt(5));
+    REQUIRE(geometry::length(p2) == std::sqrt(74));
+
+    REQUIRE(geometry::dot(p1, p2) == 19);
+    REQUIRE(geometry::distance(p1, p2) == std::sqrt(41));
+}
+
+/**
+ * An example test case for operations with 3-dimensional points or vectors.
+ * @since 1.0
+ */
+TEST_CASE("operations for 3-dimensional geometry", "[geometry]")
+{
+    const auto p1 = geometry::point_t(1, 2, 3);
+    const auto p2 = geometry::point_t(2, 3, 4);
+
+    REQUIRE(p1 + p2 == geometry::point_t(3, 5, 7));
+    REQUIRE(p2 - p1 == geometry::point_t(1, 1, 1));
+
+    REQUIRE(3 * p1 == geometry::point_t(3, 6, 9));
+    REQUIRE(p2 * 2 == geometry::point_t(4, 6, 8));
+
+    REQUIRE(geometry::length(p1) == std::sqrt(14));
+    REQUIRE(geometry::length(p2) == std::sqrt(29));
+
+    REQUIRE(geometry::dot(p1, p2) == 20);
+    REQUIRE(geometry::distance(p1, p2) == std::sqrt(3));
+    REQUIRE(geometry::cross(p1, p2) == geometry::point_t(-1, 2, -1));
 }

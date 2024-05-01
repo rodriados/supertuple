@@ -1,5 +1,8 @@
 name: run-examples-ci
 
+env:
+  CATCH_SOURCE_FILE: https://github.com/catchorg/Catch2/releases/download/v3.6.0/catch_amalgamated.hpp
+
 on: [push, pull_request]
 
 jobs:
@@ -11,12 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Preparing compilers
+      - name: preparing-compilers
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential clang
 
-      - name: Running examples
+      - name: installing-library-catch
+        run: |
+          wget -O catch.hpp ${{env.CATCH_SOURCE_FILE}}
+
+      - name: running-examples
         run: |
           CXX=${{matrix.compiler}} make build-examples
           for example in bin/examples/*; do $example; done
