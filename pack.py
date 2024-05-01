@@ -7,6 +7,7 @@ SuperTuple: A powerful and light-weight C++ tuple implementation.
 """
 import re, os, sys
 
+from argparse import ArgumentParser
 from configparser import ConfigParser
 from dataclasses import dataclass
 from typing import TextIO
@@ -167,10 +168,21 @@ def compact_source_code(*, outfile: str, project: ProjectInfo) -> None:
 
 if __name__ == '__main__':
     config = ConfigParser()
-    config.read(sys.argv[1] if len(sys.argv) > 1 else '.packconfig')
+    parser = ArgumentParser(description = "C++ source code packing script")
+
+    parser.add_argument('-c', '--config',
+        help = 'The source packing script configuration file',
+        nargs = '?', metavar = 'file', dest = 'config', default = '.packconfig')
+
+    parser.add_argument('-o', '--outfile',
+        help = 'The target file to output the packed source code to',
+        nargs = '?', metavar = 'file', dest = 'outfile')
+
+    args = parser.parse_args()
+    config.read(args.config)
 
     compact_source_code(
-        outfile = config['output']['outfile'],
+        outfile = config['output']['outfile'] if args.outfile is None else args.outfile,
         project = ProjectInfo(
             workingdir = config['project']['workingdir']
           , namespace = config['project']['namespace']
