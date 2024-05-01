@@ -53,7 +53,7 @@ prepare-examples:
 	@mkdir -p $(sort $(dir $(EXMPBINS)))
 	@mkdir -p $(sort $(dir $(EXMPOBJS)))
 
-build-examples: override FLAGS := -DTESTING $(FLAGS)
+build-examples: override FLAGS := -DTESTING -I. $(FLAGS)
 build-examples: prepare-examples $(EXMPBINS)
 
 clean-examples:

@@ -31,5 +31,5 @@ git clone https://github.com/rodriados/supertuple
 To use the project, you can copy source files into your own project or install it
 on your system and then reference it in your code:
 ```cpp
-#include <supertuple.h>
+#include <supertuple.hpp>
 ```

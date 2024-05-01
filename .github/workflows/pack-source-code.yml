@@ -11,16 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: preparing-environment
+      - name: Prepare environment
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential python
 
-      - name: packing-source-code
+      - name: Pack source code
         run: |
           make distribute
 
-      - name: prerelease-with-packed-source-code
+      - name: Draft release with packed source code
         uses: softprops/action-gh-release@v2
         with:
           files: dist/supertuple.hpp
