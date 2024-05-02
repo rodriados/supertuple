@@ -34,9 +34,6 @@ inline static constexpr auto multiply = [](auto&& x, auto && y) { return x * y; 
 inline static constexpr auto divide   = [](auto&& x, auto && y) { return x / y; };
 inline static constexpr auto fpow     = [](auto&& x, auto && y) { return std::pow(x, y); };
 
-inline static constexpr auto equals      = [](auto&& x, auto && y) { return x == y; };
-inline static constexpr auto logical_and = [](auto&& x, auto && y) { return x && y; };
-
 // Ignoring warning for anonymous structs which are prohibited by ISO C++ standard,
 // but is supported by all major compilers. We exploit these anonymous structs to
 // allow coordinates to be accessed by their different axis-names within distinct
@@ -248,10 +245,7 @@ namespace geometry
         const coordinate_t<D, T>& a
       , const coordinate_t<D, U>& b
     ) noexcept {
-        return st::foldl(
-            st::zipwith(st::tie(a.value), st::tie(b.value), ::equals)
-          , ::logical_and
-        );
+        return st::tie(a.value) == st::tie(b.value);
     }
 
     /**

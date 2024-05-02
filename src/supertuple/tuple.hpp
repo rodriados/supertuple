@@ -333,6 +333,60 @@ class pair_t : public tuple_t<T, U>
  */
 template <typename T, typename U> pair_t(T, U) -> pair_t<T, U>;
 
+/**
+ * Compares two tuples by checking whether their elements are equal.
+ * @tparam I The tuples' sequence indeces.
+ * @tparam T The first tuple's element members types.
+ * @tparam U The second tuple's element members types.
+ * @param a The first tuple to be compared.
+ * @param b The second tuple to be compared.
+ * @return Are the two tuples considered equal?
+ */
+template <
+    size_t ...I, typename ...T, typename ...U
+  , typename = std::void_t<decltype(std::declval<T>() == std::declval<U>())...>
+>
+SUPERTUPLE_CONSTEXPR bool operator==(
+    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
+  , const tuple_t<detail::identity_t<std::index_sequence<I...>>, U...>& b
+) noexcept {
+    return ((operation::get<I>(a) == operation::get<I>(b)) && ...);
+}
+
+/**
+ * Compares two tuples of different length or uncomparable element types.
+ * @tparam I The first tuple's sequence indeces.
+ * @tparam J The second tuple's sequence indeces.
+ * @tparam T The first tuple's element members types.
+ * @tparam U The second tuple's element members types.
+ * @return The tuples cannot possibly be equal.
+ */
+template <size_t ...I, size_t ...J, typename ...T, typename ...U>
+SUPERTUPLE_CONSTEXPR bool operator==(
+    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&
+  , const tuple_t<detail::identity_t<std::index_sequence<J...>>, U...>&
+) noexcept {
+    return false;
+}
+
+/**
+ * Compares two tuples by checking whether any of their elements are different.
+ * @tparam I The first tuple's sequence indeces.
+ * @tparam J The second tuple's sequence indeces.
+ * @tparam T The first tuple's element members types.
+ * @tparam U The second tuple's element members types.
+ * @param a The first tuple to be compared.
+ * @param b The second tuple to be compared.
+ * @return Are the two tuples considered different?
+ */
+template <size_t ...I, size_t ...J, typename ...T, typename ...U>
+SUPERTUPLE_CONSTEXPR bool operator!=(
+    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
+  , const tuple_t<detail::identity_t<std::index_sequence<J...>>, U...>& b
+) noexcept {
+    return !operator==(a, b);
+}
+
 SUPERTUPLE_END_NAMESPACE
 
 /**
