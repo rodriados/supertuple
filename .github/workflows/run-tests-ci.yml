@@ -26,7 +26,7 @@ jobs:
       - name: Run tests
         run: |
           CXX=${{matrix.compiler}} make build-tests -j4
-          bin/tests/runtest
+          bin/test/runtest
 
       - name: Run examples
         run: |
