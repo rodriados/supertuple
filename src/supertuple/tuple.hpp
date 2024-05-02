@@ -280,6 +280,8 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
  */
 template <typename T, size_t N> ntuple_t(const T(&)[N]) -> ntuple_t<T, N>;
 template <typename T, size_t N> ntuple_t(T(&&)[N]) -> ntuple_t<T, N>;
+template <typename ...T> ntuple_t(const T&...) -> ntuple_t<std::common_type_t<T...>, sizeof...(T)>;
+template <typename ...T> ntuple_t(T&&...) -> ntuple_t<std::common_type_t<T...>, sizeof...(T)>;
 
 /**
  * The tuple composed of exactly two elements is a pair. In a pair, each

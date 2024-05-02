@@ -26,7 +26,10 @@ SRCFILES := $(shell find $(SRCDIR) -name '*.h')                                 
             $(shell find $(SRCDIR) -name '*.hpp')
 EXAMPLES := $(shell find $(EXPDIR) -name '*.cpp')
 EXMPBINS = $(EXAMPLES:$(EXPDIR)/%.cpp=$(BINDIR)/$(EXPDIR)/%)
-EXMPOBJS = $(EXAMPLES:$(EXPDIR)/%.cpp=$(OBJDIR)/$(EXPDIR)/%)
+EXMPOBJS = $(EXAMPLES:$(EXPDIR)/%.cpp=$(OBJDIR)/$(EXPDIR)/%.o)
+
+TSTFILES := $(shell find $(TSTDIR) -name '*.cpp')
+TESTOBJS = $(TSTFILES:$(TSTDIR)/%.cpp=$(OBJDIR)/$(TSTDIR)/%.o)
 
 # The operational system check. At least for now, we assume that we are always running
 # on a Linux machine. Therefore, a disclaimer must be shown if this is not true.
@@ -60,6 +63,19 @@ clean-examples:
 	@rm -rf $(BINDIR)/$(EXPDIR)
 	@rm -rf $(OBJDIR)/$(EXPDIR)
 
+tests: build-tests
+
+prepare-tests:
+	@mkdir -p $(BINDIR)/$(TSTDIR)
+	@mkdir -p $(sort $(dir $(TESTOBJS)))
+
+build-tests: override FLAGS := -DTESTING -I. $(FLAGS)
+build-tests: prepare-tests $(BINDIR)/$(TSTDIR)/runtest
+
+clean-tests:
+	@rm -rf $(BINDIR)/$(TSTDIR)
+	@rm -rf $(OBJDIR)/$(TSTDIR)
+
 prepare-distribute:
 	@mkdir -p $(DSTDIR)
 
@@ -84,9 +100,10 @@ clean:
 	@rm -rf $(OBJDIR)
 	@rm -rf $(DSTDIR)
 
-.PHONY: all clean install examples
+.PHONY: all clean install examples tests
 .PHONY: prepare-distribute distribute clean-distribute
 .PHONY: prepare-examples build-examples clean-examples
+.PHONY: prepare-tests build-tests clean-tests
 
 # Creates dependency on header files. This is valuable so that whenever a header
 # file is changed, all objects depending on it will be forced to recompile.
@@ -97,5 +114,8 @@ endif
 $(BINDIR)/%: $(OBJDIR)/%.o
 	$(CXX) $(LINKFLAGS) $< -o $@
 
-$(OBJDIR)/$(EXPDIR)/%.o: $(EXPDIR)/%.cpp
+$(BINDIR)/$(TSTDIR)/runtest: $(TESTOBJS)
+	$(CXX) $(LINKFLAGS) $^ -o $@
+
+$(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@

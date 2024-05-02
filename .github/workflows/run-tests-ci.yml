@@ -1,4 +1,4 @@
-name: run-examples-ci
+name: run-tests-ci
 
 env:
   CATCH_SOURCE_FILE: https://github.com/catchorg/Catch2/releases/download/v2.13.10/catch.hpp
@@ -23,8 +23,16 @@ jobs:
         run: |
           wget -O catch.hpp ${{env.CATCH_SOURCE_FILE}}
 
+      - name: Run tests
+        run: |
+          CXX=${{matrix.compiler}} make build-tests -j4
+          bin/tests/runtest
+
       - name: Run examples
         run: |
-          CXX=${{matrix.compiler}} make build-examples
+          CXX=${{matrix.compiler}} make build-examples -j4
           for example in bin/examples/*; do $example; done
+
+      - name: Clean-up
+        run: |
           make clean
