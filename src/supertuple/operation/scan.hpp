@@ -60,7 +60,7 @@ namespace detail
                 t, lambda
               , detail::invoke(lambda, base, operation::get<I>(t))
               , std::index_sequence<J...>())
-          , std::remove_reference_t<B>(base)
+          , (B) base
         );
     }
 }
