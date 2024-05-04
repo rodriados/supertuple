@@ -48,8 +48,8 @@ namespace detail
      * @tparam T The extracted tuple element type.
      */
     template <size_t I, typename T>
-    SUPERTUPLE_CONSTEXPR auto type(leaf_t<I, T>) noexcept
-    -> typename leaf_t<I, T>::element_t;
+    SUPERTUPLE_CONSTEXPR auto access(leaf_t<I, T>) noexcept
+    -> leaf_t<I, T>;
 
     /**
      * Creates a tuple with repeated types.
@@ -76,12 +76,20 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
 
     public:
         /**
+         * Provides typed access to an element within the tuple.
+         * @tparam J The requested element index.
+         * @since 1.0
+         */
+        template <size_t J>
+        using accessor_t = decltype(detail::access<J>(std::declval<tuple_t>()))&;
+
+        /**
          * Retrieves the type of a specific tuple element by its index.
          * @tparam J The requested element index.
          * @since 1.0
          */
         template <size_t J>
-        using element_t = decltype(detail::type<J>(std::declval<tuple_t>()));
+        using element_t = typename std::remove_reference_t<accessor_t<J>>::element_t;
 
     public:
         SUPERTUPLE_CONSTEXPR tuple_t() = default;
@@ -133,7 +141,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         template <typename ...U>
         SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t<identity_t, U...>& other)
         {
-            return swallow(*this, detail::leaf_t<I, T>::operator=(other)...);
+            return swallow(*this, accessor_t<I>(*this) = static_cast<const detail::leaf_t<I, U>&>(other)...);
         }
 
         /**
@@ -145,7 +153,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         template <typename ...U>
         SUPERTUPLE_INLINE tuple_t& operator=(tuple_t<identity_t, U...>&& other)
         {
-            return swallow(*this, detail::leaf_t<I, T>::operator=(std::forward<decltype(other)>(other))...);
+            return swallow(*this, accessor_t<I>(*this) = std::forward<detail::leaf_t<I, U>>(other)...);
         }
 
         /**

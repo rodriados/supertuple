@@ -25,7 +25,7 @@ inline namespace operation
     template <size_t I, typename T>
     SUPERTUPLE_CONSTEXPR T& get(detail::leaf_t<I, T>& leaf) noexcept
     {
-        return leaf.value;
+        return leaf;
     }
 
     /**
@@ -38,7 +38,7 @@ inline namespace operation
     template <size_t I, typename T>
     SUPERTUPLE_CONSTEXPR const T& get(const detail::leaf_t<I, T>& leaf) noexcept
     {
-        return leaf.value;
+        return leaf;
     }
 
     /**
@@ -51,7 +51,7 @@ inline namespace operation
     template <size_t I, typename T>
     SUPERTUPLE_CONSTEXPR decltype(auto) get(detail::leaf_t<I, T>&& leaf) noexcept
     {
-        return std::forward<decltype(leaf.value)>(leaf.value);
+        return std::forward<T>(leaf);
     }
 }
 

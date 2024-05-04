@@ -25,7 +25,7 @@ inline namespace operation
     template <size_t I, typename T, typename U>
     SUPERTUPLE_INLINE void set(detail::leaf_t<I, T>& leaf, U&& value)
     {
-        leaf.value = std::forward<decltype(value)>(value);
+        leaf = std::forward<decltype(value)>(value);
     }
 }
 
