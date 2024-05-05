@@ -1,6 +1,6 @@
 # SuperTuple
 ![license MIT](https://img.shields.io/badge/license-MIT-lightgrey.svg)
-![version dev](https://img.shields.io/badge/version-dev-red.svg)
+![version dev](https://img.shields.io/badge/version-1.0-green.svg)
 
 A powerful yet lightweight C++17 tuple implementation for functional-programming.
 
