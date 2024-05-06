@@ -7,11 +7,11 @@ NAME = supertuple
 INCDIR = src
 SRCDIR = src
 EXPDIR = examples
-DSTDIR = dist
 TSTDIR = test
 
-OBJDIR = obj
-BINDIR = bin
+DSTDIR ?= dist
+OBJDIR ?= obj
+BINDIR ?= bin
 
 CXX    ?= g++
 STDCPP ?= c++17
@@ -119,3 +119,5 @@ $(BINDIR)/$(TSTDIR)/runtest: $(TESTOBJS)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+
+.PRECIOUS: $(OBJDIR)/%.o
