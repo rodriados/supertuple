@@ -79,12 +79,13 @@ clean-tests:
 prepare-distribute:
 	@mkdir -p $(DSTDIR)
 
-distribute: DISTRIBUTE_CONFIG ?= .packconfig
-distribute: DISTRIBUTE_TARGET ?= $(DSTDIR)/$(NAME).hpp
-distribute: prepare-distribute
-	python pack.py -c $(DISTRIBUTE_CONFIG) -o $(DISTRIBUTE_TARGET)
+SUPERTUPLE_DIST_CONFIG ?= .packconfig
+SUPERTUPLE_DIST_TARGET ?= $(DSTDIR)/$(NAME).hpp
+
+distribute: prepare-distribute $(SUPERTUPLE_DIST_TARGET)
 
 clean-distribute:
+	@rm $(SUPERTUPLE_DIST_TARGET)
 	@rm -rf $(DSTDIR)
 
 INSTALL_DESTINATION ?= $(DESTDIR)$(PREFIX)/include
@@ -119,5 +120,8 @@ $(BINDIR)/$(TSTDIR)/runtest: $(TESTOBJS)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+
+$(SUPERTUPLE_DIST_TARGET): $(SRCFILES)
+	python pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
 
 .PRECIOUS: $(OBJDIR)/%.o
