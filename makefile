@@ -85,7 +85,7 @@ SUPERTUPLE_DIST_TARGET ?= $(DSTDIR)/$(NAME).hpp
 distribute: prepare-distribute $(SUPERTUPLE_DIST_TARGET)
 
 clean-distribute:
-	@rm $(SUPERTUPLE_DIST_TARGET)
+	@rm -f $(SUPERTUPLE_DIST_TARGET)
 	@rm -rf $(DSTDIR)
 
 INSTALL_DESTINATION ?= $(DESTDIR)$(PREFIX)/include
@@ -95,6 +95,9 @@ install: $(INSTALL_TARGETS)
 
 $(INSTALL_DESTINATION)/%: $(SRCDIR)/%
 	install -m 644 -D -T $< $@
+
+uninstall:
+	@rm -f $(INSTALL_TARGETS)
 
 clean:
 	@rm -rf $(BINDIR)
