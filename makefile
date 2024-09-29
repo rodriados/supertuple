@@ -125,6 +125,6 @@ $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
 $(SUPERTUPLE_DIST_TARGET): $(SRCFILES)
-	python pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
+	python3 pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
 
 .PRECIOUS: $(OBJDIR)/%.o
