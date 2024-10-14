@@ -36,6 +36,9 @@ class tuple_t : public tuple_t<detail::identity_t<std::make_index_sequence<sizeo
         typedef tuple_t<identity_t, T...> underlying_t;
 
     public:
+        using base_tuple_t = tuple_t;
+
+    public:
         using underlying_t::underlying_t;
         using underlying_t::operator=;
 };
