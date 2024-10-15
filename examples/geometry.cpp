@@ -16,7 +16,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <catch.hpp>
-#include <supertuple.hpp>
+#include <supertuple.h>
 
 namespace st = supertuple;
 
@@ -57,7 +57,7 @@ namespace geometry
         inline static constexpr size_t dimensionality = D;
 
         static_assert(dimensionality > 0, "a coordinate must be at least 1-dimensional");
-        static_assert(std::is_arithmetic<dimension_t>::value, "a coordinate must have arithmetic type");
+        static_assert(std::is_arithmetic_v<dimension_t>, "a coordinate must have arithmetic type");
 
         union {
             dimension_t value[D] {};
@@ -77,7 +77,7 @@ namespace geometry
         typedef T dimension_t;
         inline static constexpr size_t dimensionality = 1;
 
-        static_assert(std::is_arithmetic<dimension_t>::value, "a coordinate must have arithmetic type");
+        static_assert(std::is_arithmetic_v<dimension_t>, "a coordinate must have arithmetic type");
 
         union {
             dimension_t value[1] {};
@@ -110,7 +110,7 @@ namespace geometry
         typedef T dimension_t;
         inline static constexpr size_t dimensionality = 2;
 
-        static_assert(std::is_arithmetic<dimension_t>::value, "a coordinate must have arithmetic type");
+        static_assert(std::is_arithmetic_v<dimension_t>, "a coordinate must have arithmetic type");
 
         union {
             dimension_t value[2] {};
@@ -133,7 +133,7 @@ namespace geometry
         typedef T dimension_t;
         inline static constexpr size_t dimensionality = 3;
 
-        static_assert(std::is_arithmetic<dimension_t>::value, "a coordinate must have arithmetic type");
+        static_assert(std::is_arithmetic_v<dimension_t>, "a coordinate must have arithmetic type");
 
         union {
             dimension_t value[3] {};
@@ -178,11 +178,9 @@ namespace geometry
          */
         template <
             typename ...U
-          , typename = typename std::enable_if<(
-                std::is_convertible<U, dimension_t>::value && ... &&
-                (underlying_t::dimensionality == sizeof...(U))
-            )>::type
-        >
+          , typename = std::enable_if_t<(
+                std::is_convertible_v<U, dimension_t> && ... &&
+                (underlying_t::dimensionality == sizeof...(U)))>>
         inline constexpr point_t(const U&... value)
           : underlying_t {static_cast<dimension_t>(value)...}
         {}

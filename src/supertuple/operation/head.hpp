@@ -26,7 +26,7 @@ inline namespace operation
      * @return The head value of tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) head(
+    SUPERTUPLE_CONSTEXPR decltype(auto) head(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
     ) noexcept {
         return operation::get<0>(t);
@@ -40,7 +40,7 @@ inline namespace operation
      * @return The head value of tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) head(
+    SUPERTUPLE_CONSTEXPR decltype(auto) head(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
     ) noexcept {
         return operation::get<0>(std::forward<decltype(t)>(t));

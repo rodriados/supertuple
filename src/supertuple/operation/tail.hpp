@@ -26,7 +26,7 @@ inline namespace operation
      * @return The new tuple with removed head.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) tail(
+    SUPERTUPLE_CONSTEXPR decltype(auto) tail(
         const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
     ) {
         return tuple_t<tuple_element_t<tuple_t<T...>, I>...>(
@@ -42,7 +42,7 @@ inline namespace operation
      * @return The new tuple with removed head.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) tail(
+    SUPERTUPLE_CONSTEXPR decltype(auto) tail(
         tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>&& t
     ) {
         return tuple_t<tuple_element_t<tuple_t<T...>, I>...>(

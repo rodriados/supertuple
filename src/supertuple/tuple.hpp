@@ -106,8 +106,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
          */
         template <
             typename ...U
-          , typename std::enable_if<sizeof...(U) == sizeof...(T), int>::type = 0
-        >
+          , typename = std::enable_if_t<sizeof...(U) == sizeof...(T)>>
         SUPERTUPLE_CONSTEXPR tuple_t(U&&... value)
           : detail::leaf_t<I, T> (std::forward<decltype(value)>(value))...
         {}
@@ -235,11 +234,9 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
          */
         template <
             typename U
-          , typename = typename std::enable_if<
-                std::is_pointer<typename std::remove_reference<U>::type>() ||
-                std::is_array<typename std::remove_reference<U>::type>()
-            >::type
-        >
+          , typename = std::enable_if_t<
+                std::is_pointer_v<std::remove_reference_t<U>> ||
+                std::is_array_v<std::remove_reference_t<U>>>>
         SUPERTUPLE_CONSTEXPR ntuple_t(U&& array)
           : ntuple_t (indexer_t(), array)
         {}
@@ -355,8 +352,7 @@ template <typename T, typename U> pair_t(T, U) -> pair_t<T, U>;
  */
 template <
     size_t ...I, typename ...T, typename ...U
-  , typename = std::void_t<decltype(std::declval<T>() == std::declval<U>())...>
->
+  , typename = std::void_t<decltype(std::declval<T>() == std::declval<U>())...>>
 SUPERTUPLE_CONSTEXPR bool operator==(
     const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
   , const tuple_t<detail::identity_t<std::index_sequence<I...>>, U...>& b
@@ -418,10 +414,7 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::tuple_t<T...>>
 template <size_t I, typename ...T>
 struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::tuple_t<T...>>
   : SUPERTUPLE_NAMESPACE::detail::identity_t<
-        SUPERTUPLE_NAMESPACE::tuple_element_t<
-            SUPERTUPLE_NAMESPACE::tuple_t<T...>
-          , I
-        >> {};
+        typename SUPERTUPLE_NAMESPACE::tuple_t<T...>::template element_t<I>> {};
 
 /**
  * Informs the size of a generic n-tuple, allowing it to be deconstructed.
@@ -443,10 +436,7 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::ntuple_t<T, N>>
 template <size_t I, typename T, size_t N>
 struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::ntuple_t<T, N>>
   : SUPERTUPLE_NAMESPACE::detail::identity_t<
-        SUPERTUPLE_NAMESPACE::tuple_element_t<
-            SUPERTUPLE_NAMESPACE::ntuple_t<T, N>
-          , I
-        >> {};
+        typename SUPERTUPLE_NAMESPACE::ntuple_t<T, N>::template element_t<I>> {};
 
 /**
  * Informs the size of a generic pair, allowing it to be deconstructed.

@@ -26,7 +26,7 @@ inline namespace operation
      * @return The reversed tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) reverse(
+    SUPERTUPLE_CONSTEXPR decltype(auto) reverse(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
     ) {
         constexpr size_t J = sizeof...(T);
@@ -43,7 +43,7 @@ inline namespace operation
      * @return The reversed tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) reverse(
+    SUPERTUPLE_CONSTEXPR decltype(auto) reverse(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
     ) {
         constexpr size_t J = sizeof...(T);

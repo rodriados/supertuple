@@ -29,7 +29,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void foreach(
+    SUPERTUPLE_CONSTEXPR void foreach(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , A&&... args
@@ -52,7 +52,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void foreach(
+    SUPERTUPLE_CONSTEXPR void foreach(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , A&&... args
@@ -75,7 +75,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void foreach(
+    SUPERTUPLE_CONSTEXPR void foreach(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
       , F&& lambda
       , A&&... args
@@ -98,7 +98,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T, size_t J = sizeof...(I)>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void rforeach(
+    SUPERTUPLE_CONSTEXPR void rforeach(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , A&&... args
@@ -121,7 +121,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T, size_t J = sizeof...(I)>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void rforeach(
+    SUPERTUPLE_CONSTEXPR void rforeach(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , F&& lambda
       , A&&... args
@@ -144,7 +144,7 @@ inline namespace operation
      * @param args The remaining functor arguments.
      */
     template <typename F, typename ...A, size_t ...I, typename ...T, size_t J = sizeof...(I)>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr void rforeach(
+    SUPERTUPLE_CONSTEXPR void rforeach(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
       , F&& lambda
       , A&&... args

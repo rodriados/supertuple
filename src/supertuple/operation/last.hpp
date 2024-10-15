@@ -26,7 +26,7 @@ inline namespace operation
      * @return The last value of tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) last(
+    SUPERTUPLE_CONSTEXPR decltype(auto) last(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
     ) noexcept {
         constexpr size_t J = sizeof...(T);
@@ -41,7 +41,7 @@ inline namespace operation
      * @return The last value of tuple.
      */
     template <size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) last(
+    SUPERTUPLE_CONSTEXPR decltype(auto) last(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
     ) noexcept {
         constexpr size_t J = sizeof...(T);

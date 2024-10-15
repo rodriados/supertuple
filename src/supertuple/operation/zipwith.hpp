@@ -32,16 +32,18 @@ inline namespace operation
      * @return The resulting tuple.
      */
     template <typename F, size_t ...I, typename ...T, typename ...U>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) zipwith(
+    SUPERTUPLE_CONSTEXPR decltype(auto) zipwith(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
       , const tuple_t<detail::identity_t<std::index_sequence<I...>>, U...>& b
       , F&& lambda
     ) {
-        return tuple_t(detail::invoke(
-            lambda
-          , operation::get<I>(a)
-          , operation::get<I>(b)
-        )...);
+        return tuple_t(
+            detail::invoke(
+                lambda
+              , operation::get<I>(a)
+              , operation::get<I>(b)
+            )...
+        );
     }
 
     /**
@@ -58,16 +60,18 @@ inline namespace operation
      * @return The resulting tuple.
      */
     template <typename F, size_t ...I, typename ...T, typename ...U>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) zipwith(
+    SUPERTUPLE_CONSTEXPR decltype(auto) zipwith(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& a
       , tuple_t<detail::identity_t<std::index_sequence<I...>>, U...>&& b
       , F&& lambda
     ) {
-        return tuple_t(detail::invoke(
-            lambda
-          , operation::get<I>(std::forward<decltype(a)>(a))
-          , operation::get<I>(std::forward<decltype(b)>(b))
-        )...);
+        return tuple_t(
+            detail::invoke(
+                lambda
+              , operation::get<I>(std::forward<decltype(a)>(a))
+              , operation::get<I>(std::forward<decltype(b)>(b))
+            )...
+        );
     }
 }
 

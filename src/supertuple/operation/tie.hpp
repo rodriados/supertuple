@@ -21,7 +21,7 @@ inline namespace operation
      * @return The new tuple of references.
      */
     template <typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) tie(T&... ref) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T&... ref) noexcept
     {
         return tuple_t<T&...>(ref...);
     }
@@ -35,7 +35,7 @@ inline namespace operation
      * @return The new tuple of references.
      */
     template <typename T, size_t N>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) tie(T (&ref)[N]) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T (&ref)[N]) noexcept
     {
         return ntuple_t<T&, N>(ref);
     }
@@ -49,7 +49,7 @@ inline namespace operation
      * @return The new tuple of move-references.
      */
     template <typename T, size_t N>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) tie(T (&&ref)[N]) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T (&&ref)[N]) noexcept
     {
         return ntuple_t<T&&, N>(std::forward<decltype(ref)>(ref));
     }

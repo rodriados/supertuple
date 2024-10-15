@@ -35,11 +35,13 @@ inline namespace operation
       , F&& lambda
       , A&&... args
     ) {
-        return tuple_t(detail::invoke(
-            lambda
-          , operation::get<I>(t)
-          , std::forward<decltype(args)>(args)...
-        )...);
+        return tuple_t(
+            detail::invoke(
+                lambda
+              , operation::get<I>(t)
+              , std::forward<decltype(args)>(args)...
+            )...
+        );
     }
 
     /**
@@ -59,11 +61,13 @@ inline namespace operation
       , F&& lambda
       , A&&... args
     ) {
-        return tuple_t(detail::invoke(
-            lambda
-          , operation::get<I>(std::forward<decltype(t)>(t))
-          , std::forward<decltype(args)>(args)...
-        )...);
+        return tuple_t(
+            detail::invoke(
+                lambda
+              , operation::get<I>(std::forward<decltype(t)>(t))
+              , std::forward<decltype(args)>(args)...
+            )...
+        );
     }
 }
 

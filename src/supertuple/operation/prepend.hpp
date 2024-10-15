@@ -28,7 +28,7 @@ inline namespace operation
      * @return The resulting tuple.
      */
     template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) prepend(
+    SUPERTUPLE_CONSTEXPR decltype(auto) prepend(
         const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
       , const E& element
     ) {
@@ -48,7 +48,7 @@ inline namespace operation
      * @return The resulting tuple.
      */
     template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) prepend(
+    SUPERTUPLE_CONSTEXPR decltype(auto) prepend(
         tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
       , E&& element
     ) {

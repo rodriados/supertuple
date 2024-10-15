@@ -62,7 +62,7 @@ namespace detail
     template <typename F, typename O, typename ...A>
     SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
     {
-        if constexpr (std::is_member_function_pointer<F>::value) {
+        if constexpr (std::is_member_function_pointer_v<F>) {
             return (object.*lambda)(std::forward<decltype(args)>(args)...);
         } else {
             return (lambda)(
