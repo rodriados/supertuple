@@ -80,7 +80,7 @@ prepare-distribute:
 	@mkdir -p $(DSTDIR)
 
 SUPERTUPLE_DIST_CONFIG ?= .packconfig
-SUPERTUPLE_DIST_TARGET ?= $(DSTDIR)/$(NAME).hpp
+SUPERTUPLE_DIST_TARGET ?= $(DSTDIR)/$(NAME).h
 
 distribute: prepare-distribute $(SUPERTUPLE_DIST_TARGET)
 

@@ -5,7 +5,7 @@
  * @copyright 2024-present Rodrigo Siqueira
  */
 #include <catch.hpp>
-#include <supertuple.hpp>
+#include <supertuple.h>
 
 namespace st = supertuple;
 

@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include <catch.hpp>
-#include <supertuple.hpp>
+#include <supertuple.h>
 
 namespace st = supertuple;
 
