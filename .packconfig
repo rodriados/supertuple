@@ -1,7 +1,7 @@
 [output]
-outfile = dist/supertuple.hpp
+outfile = dist/supertuple.h
 
 [project]
 workingdir = src
 namespace = supertuple
-entrypoint = supertuple.hpp
+entrypoint = supertuple.h
