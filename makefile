@@ -19,11 +19,12 @@ STDCPP ?= c++17
 # Defining macros inside code at compile time. This can be used to enable or disable
 # certain features on code or affect the projects compilation.
 FLAGS     ?=
+CXXFLAGS  ?= -std=$(STDCPP) -I$(DSTDIR) -I$(INCDIR) $(FLAGS)
 LINKFLAGS ?=
-CXXFLAGS  ?= -std=$(STDCPP) -I$(INCDIR) $(FLAGS)
 
 SRCFILES := $(shell find $(SRCDIR) -name '*.h')                                 \
             $(shell find $(SRCDIR) -name '*.hpp')
+
 EXAMPLES := $(shell find $(EXPDIR) -name '*.cpp')
 EXMPBINS = $(EXAMPLES:$(EXPDIR)/%.cpp=$(BINDIR)/$(EXPDIR)/%)
 EXMPOBJS = $(EXAMPLES:$(EXPDIR)/%.cpp=$(OBJDIR)/$(EXPDIR)/%.o)
@@ -48,47 +49,41 @@ ifeq ($(PREFIX),)
 	PREFIX := /usr/local
 endif
 
-all: examples
-
+all:      examples tests
 examples: build-examples
+tests:    build-tests
 
 prepare-examples:
 	@mkdir -p $(sort $(dir $(EXMPBINS)))
 	@mkdir -p $(sort $(dir $(EXMPOBJS)))
 
-build-examples: override FLAGS := -DTESTING -I. $(FLAGS)
+build-examples: override FLAGS := -DTESTING -g -O0 $(FLAGS)
 build-examples: prepare-examples $(EXMPBINS)
-
-clean-examples:
-	@rm -rf $(BINDIR)/$(EXPDIR)
-	@rm -rf $(OBJDIR)/$(EXPDIR)
-
-tests: build-tests
 
 prepare-tests:
 	@mkdir -p $(BINDIR)/$(TSTDIR)
 	@mkdir -p $(sort $(dir $(TESTOBJS)))
 
-build-tests: override FLAGS := -DTESTING -I. $(FLAGS)
+build-tests: override FLAGS := -DTESTING -g -O0 $(FLAGS)
 build-tests: prepare-tests $(BINDIR)/$(TSTDIR)/runtest
 
-clean-tests:
-	@rm -rf $(BINDIR)/$(TSTDIR)
-	@rm -rf $(OBJDIR)/$(TSTDIR)
+run-tests: build-tests
+	$(BINDIR)/$(TSTDIR)/runtest
 
 prepare-distribute:
 	@mkdir -p $(DSTDIR)
 
+export DISTRIBUTE_DESTINATION ?= $(shell realpath $(DSTDIR))
+
 SUPERTUPLE_DIST_CONFIG ?= .packconfig
-SUPERTUPLE_DIST_TARGET ?= $(DSTDIR)/$(NAME).h
+SUPERTUPLE_DIST_TARGET ?= $(DISTRIBUTE_DESTINATION)/$(NAME).h
 
 distribute: prepare-distribute $(SUPERTUPLE_DIST_TARGET)
 
 clean-distribute:
-	@rm -f $(SUPERTUPLE_DIST_TARGET)
 	@rm -rf $(DSTDIR)
 
-INSTALL_DESTINATION ?= $(DESTDIR)$(PREFIX)/include
+export INSTALL_DESTINATION ?= $(PREFIX)/include
 INSTALL_TARGETS = $(SRCFILES:$(SRCDIR)/%=$(INSTALL_DESTINATION)/%)
 
 install: $(INSTALL_TARGETS)
@@ -99,15 +94,17 @@ $(INSTALL_DESTINATION)/%: $(SRCDIR)/%
 uninstall:
 	@rm -f $(INSTALL_TARGETS)
 
-clean:
+clean: clean-distribute
 	@rm -rf $(BINDIR)
 	@rm -rf $(OBJDIR)
-	@rm -rf $(DSTDIR)
 
-.PHONY: all clean install examples tests
+.PHONY: all clean install uninstall
 .PHONY: prepare-distribute distribute clean-distribute
-.PHONY: prepare-examples build-examples clean-examples
-.PHONY: prepare-tests build-tests clean-tests
+.PHONY: prepare-examples build-examples examples
+.PHONY: prepare-tests build-tests tests run-tests
+
+$(SUPERTUPLE_DIST_TARGET): $(SRCFILES)
+	@python3 pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
 
 # Creates dependency on header files. This is valuable so that whenever a header
 # file is changed, all objects depending on it will be forced to recompile.
@@ -122,9 +119,6 @@ $(BINDIR)/$(TSTDIR)/runtest: $(TESTOBJS)
 	$(CXX) $(LINKFLAGS) $^ -o $@
 
 $(OBJDIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
-
-$(SUPERTUPLE_DIST_TARGET): $(SRCFILES)
-	python3 pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
+	$(CXX) $(CXXFLAGS) -I$(TSTDIR) -MMD -c $< -o $@
 
 .PRECIOUS: $(OBJDIR)/%.o
