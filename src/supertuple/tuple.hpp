@@ -15,6 +15,8 @@
 #include <supertuple/operation/get.hpp>
 #include <supertuple/operation/set.hpp>
 
+SUPERTUPLE_DISABLE_NVCC_WARNING_BEGIN(20012)
+
 SUPERTUPLE_BEGIN_NAMESPACE
 
 /**
@@ -39,7 +41,11 @@ class tuple_t : public tuple_t<detail::identity_t<std::make_index_sequence<sizeo
         using base_tuple_t = tuple_t;
 
     public:
+      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
+        using underlying_t::tuple_t;
+      #else
         using underlying_t::underlying_t;
+      #endif
         using underlying_t::operator=;
 };
 
@@ -251,7 +257,11 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
           : ntuple_t (indexer_t(), std::forward<decltype(array)>(array))
         {}
 
+      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
+        using underlying_t::tuple_t;
+      #else
         using underlying_t::underlying_t;
+      #endif
 
         SUPERTUPLE_INLINE ntuple_t& operator=(const ntuple_t&) = default;
         SUPERTUPLE_INLINE ntuple_t& operator=(ntuple_t&&) = default;
@@ -309,7 +319,11 @@ class pair_t : public tuple_t<T, U>
         SUPERTUPLE_CONSTEXPR pair_t(const pair_t&) = default;
         SUPERTUPLE_CONSTEXPR pair_t(pair_t&&) = default;
 
+      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
+        using underlying_t::tuple_t;
+      #else
         using underlying_t::underlying_t;
+      #endif
 
         SUPERTUPLE_INLINE pair_t& operator=(const pair_t&) = default;
         SUPERTUPLE_INLINE pair_t& operator=(pair_t&&) = default;
@@ -458,3 +472,5 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::pair_t<T, U>>
 template <size_t I, typename T, typename U>
 struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::pair_t<T, U>>
   : std::tuple_element<I, SUPERTUPLE_NAMESPACE::tuple_t<T, U>> {};
+
+SUPERTUPLE_DISABLE_NVCC_WARNING_END(20012)

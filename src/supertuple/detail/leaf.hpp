@@ -11,6 +11,8 @@
 #include <supertuple/environment.h>
 #include <supertuple/detail/utility.hpp>
 
+SUPERTUPLE_DISABLE_NVCC_WARNING_BEGIN(20012)
+
 SUPERTUPLE_BEGIN_NAMESPACE
 
 namespace detail
@@ -135,3 +137,5 @@ namespace detail
 }
 
 SUPERTUPLE_END_NAMESPACE
+
+SUPERTUPLE_DISABLE_NVCC_WARNING_END(20012)
