@@ -57,6 +57,28 @@ inline namespace operation
           , operation::get<I>(std::forward<decltype(t)>(t))...
         );
     }
+
+    /**
+     * Macro for forwarding a generic function that cannot be directly cast into
+     * a function pointer. This macro simply wraps the function in a lambda to forward
+     * the tuple contents as parameters to the given function.
+     * @param f The function to forward the tuple into.
+     */
+    #define SUPERTUPLE_FORWARD_GENERIC_FUNCTION(f)                             \
+      [](auto&&... params) -> decltype(auto) {                                 \
+        return (f)(std::forward<decltype(params)>(params)...);                 \
+      }
+
+    /**
+     * Macro for forwarding a type construction, which can never be cast into a
+     * function pointer. This macro simply wraps the constructor in a lambda to
+     * forward the tuple contents as constructor parameters.
+     * @param T The type to forward the tuple into constructor.
+     */
+    #define SUPERTUPLE_FORWARD_CONSTRUCTOR(...)                                \
+      [](auto&&... params) -> decltype(auto) {                                 \
+        return __VA_ARGS__ {std::forward<decltype(params)>(params)...};        \
+      }
 }
 
 SUPERTUPLE_END_NAMESPACE
