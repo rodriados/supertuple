@@ -24,7 +24,7 @@
 #if defined(DEBUG) || defined(_DEBUG)
   #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_DEBUG
   #define SUPERTUPLE_ENVIRONMENT "Debug"
-#elif defined(TESTING)
+#elif defined(TESTING) || defined(BUILD_TESTING)
   #define SUPERTUPLE_BUILD SUPERTUPLE_BUILD_TESTING
   #define SUPERTUPLE_ENVIRONMENT "Testing"
 #elif defined(DEV) || defined(DEVELOPMENT)

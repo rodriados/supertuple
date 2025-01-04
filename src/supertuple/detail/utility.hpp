@@ -24,14 +24,14 @@ namespace detail
     struct identity_t { using type = T; };
 
     /**
-     * Swallows a variadic list of parameters and returns the first one. This
-     * functions is useful when dealing with type-packs.
+     * Returns the first parameter from a variadic list of elements. This function
+     * is useful when dealing with type-packs and it is needed to extract the first.
      * @tparam T The type of the value to be returned.
      * @tparam U The type of the values to ignore.
      * @return The given return value.
      */
     template <typename T, typename ...U>
-    SUPERTUPLE_CONSTEXPR decltype(auto) swallow(T&& target, U&&...) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) ret1(T&& target, U&&...) noexcept
     {
         return std::forward<decltype(target)>(target);
     }

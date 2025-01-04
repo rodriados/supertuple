@@ -87,7 +87,7 @@ namespace detail
             template <typename U>
             SUPERTUPLE_INLINE leaf_t& operator=(U&& value)
             {
-                return swallow(*this, m_value = std::forward<decltype(value)>(value));
+                return ret1(*this, m_value = std::forward<decltype(value)>(value));
             }
 
             /**

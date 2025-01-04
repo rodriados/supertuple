@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <cstddef>
 #include <utility>
 
 #include <supertuple/environment.h>
@@ -149,7 +150,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         template <typename ...U>
         SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t<identity_t, U...>& other)
         {
-            return swallow(*this, accessor_t<I>(*this) = static_cast<const detail::leaf_t<I, U>&>(other)...);
+            return ret1(*this, accessor_t<I>(*this) = static_cast<const detail::leaf_t<I, U>&>(other)...);
         }
 
         /**
@@ -161,7 +162,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         template <typename ...U>
         SUPERTUPLE_INLINE tuple_t& operator=(tuple_t<identity_t, U...>&& other)
         {
-            return swallow(*this, accessor_t<I>(*this) = std::forward<detail::leaf_t<I, U>>(other)...);
+            return ret1(*this, accessor_t<I>(*this) = std::forward<detail::leaf_t<I, U>>(other)...);
         }
 
         /**

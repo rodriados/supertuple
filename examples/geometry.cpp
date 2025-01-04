@@ -7,15 +7,13 @@
 #include <cmath>
 #include <cstdint>
 #include <cassert>
-
 #include <iostream>
 #include <functional>
 #include <string>
 #include <utility>
 
-#define CATCH_CONFIG_MAIN
+#include <catch2/catch_test_macros.hpp>
 
-#include <catch.hpp>
 #include <supertuple.h>
 
 namespace st = supertuple;
