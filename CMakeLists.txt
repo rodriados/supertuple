@@ -18,6 +18,8 @@ target_include_directories(${PROJECT_NAME}
 
 # Conditionally builds the tests, if explicitly required by the user. The tests
 # are turned off by default because of the header-only nature of our library.
+option(BUILD_TESTING "Enable building library tests" ON)
+
 if(BUILD_TESTING)
     include(CTest)
     enable_testing()
