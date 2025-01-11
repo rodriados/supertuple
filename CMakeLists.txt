@@ -25,8 +25,6 @@ option(SUPERTUPLE_INSTALL_DOCS "Install documentation alongside library." ON)
 include(CMakeDependentOption)
 cmake_dependent_option(SUPERTUPLE_DEVELOPMENT_BUILD "Build tests, enable warnings and errors." ON "BUILD_TESTING" OFF)
 cmake_dependent_option(SUPERTUPLE_BUILD_TESTING "Generate the test targets." ON "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
-cmake_dependent_option(SUPERTUPLE_BUILD_EXAMPLES "Build code examples." OFF "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
-cmake_dependent_option(SUPERTUPLE_ENABLE_COVERAGE "Generate test coverage." OFF "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
 cmake_dependent_option(SUPERTUPLE_ENABLE_PEDANTIC "Errors on warnings." ON "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
 
 # Provides paths for scripts. We first add path to the scripts we don't use but
