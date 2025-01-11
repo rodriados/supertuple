@@ -1,17 +1,14 @@
 # SuperTuple: A powerful and light-weight C++ tuple implementation.
-# @file Makefile for compiling, installing and automatically testing.
+# @file Makefile for bundling header files into a single one.
 # @author Rodrigo Siqueira <rodriados@gmail.com>
 # @copyright 2024-present Rodrigo Siqueira
 NAME = supertuple
 
 INCDIR = src
 SRCDIR = src
-EXPDIR = examples
 TSTDIR = test
 
-DSTDIR ?= dist
-OBJDIR ?= obj
-BINDIR ?= bin
+BINDIR ?= build
 
 SRCFILES := $(shell find $(SRCDIR) -name '*.h')                                \
             $(shell find $(SRCDIR) -name '*.hpp')
@@ -27,25 +24,25 @@ ifneq ($(SYSTEMOS), Linux)
   $(info Warning: This makefile assumes OS to be Linux.)
 endif
 
-all: distribute
+all: pack
 
-prepare-distribute:
-	@mkdir -p $(DSTDIR)
+prepare-pack:
+	@mkdir -p $(BINDIR)
 
-export DISTRIBUTE_DESTINATION ?= $(shell realpath $(DSTDIR))
+export PACK_DESTINATION ?= $(shell realpath $(BINDIR))
 
-SUPERTUPLE_DIST_CONFIG ?= .packconfig
-SUPERTUPLE_DIST_TARGET ?= $(DISTRIBUTE_DESTINATION)/$(NAME).h
+SUPERTUPLE_PACK_CONFIG ?= .packconfig
+SUPERTUPLE_PACK_TARGET ?= $(PACK_DESTINATION)/$(NAME).h
 
-distribute: prepare-distribute $(SUPERTUPLE_DIST_TARGET)
+pack: prepare-pack $(SUPERTUPLE_PACK_TARGET)
 
-clean: clean-distribute
+clean: clean-pack
 
-clean-distribute:
-	@rm -rf $(DSTDIR)
+clean-pack:
+	@rm $(SUPERTUPLE_PACK_TARGET)
 
 .PHONY: all clean
-.PHONY: prepare-distribute distribute clean-distribute
+.PHONY: prepare-pack pack clean-pack
 
-$(SUPERTUPLE_DIST_TARGET): $(SRCFILES)
-	@python3 pack.py -c $(SUPERTUPLE_DIST_CONFIG) -o $@
+$(SUPERTUPLE_PACK_TARGET): $(SRCFILES)
+	@python3 pack.py -c $(SUPERTUPLE_PACK_CONFIG) -o $@

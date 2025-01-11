@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 SuperTuple: A powerful and light-weight C++ tuple implementation.
-@file Source code packing script.
+@file Script for packing header-files into a single bundle file.
 @author Rodrigo Siqueira <rodriados@gmail.com>
 @copyright 2024-present Rodrigo Siqueira
 """
