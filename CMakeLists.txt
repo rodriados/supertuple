@@ -4,50 +4,46 @@
 # @copyright 2025-present Rodrigo Siqueira
 cmake_minimum_required(VERSION 3.15)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+include(CMakeDependentOption)
+include(HelperFunctions)
+
+# Discovers the project's version and makes it readily available in a variable.
+# The version is sourced from the code itself.
+get_project_version(SUPERTUPLE_VERSION "src/supertuple/version.h")
+
 # Determines whether the current project is the master target or it is being built
 # as a dependency, potentially as a thirdparty, to an external project.
 if(NOT DEFINED SUPERTUPLE_MASTER_PROJECT)
   set(SUPERTUPLE_MASTER_PROJECT OFF)
   if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(SUPERTUPLE_MASTER_PROJECT ON)
-    message(STATUS "Project: SuperTuple")
+    message(STATUS "Project: SuperTuple ${SUPERTUPLE_VERSION}")
     message(STATUS "CMake version: ${CMAKE_VERSION}")
   endif()
 endif()
-
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Command line options to control the conditions and generation of the targets.
 # The targets may be enabled on demand, depending on the user or environment needs.
 option(SUPERTUPLE_INSTALL "Generate the install target." ${SUPERTUPLE_MASTER_PROJECT})
 option(SUPERTUPLE_INSTALL_DOCS "Install documentation alongside library." ON)
 
-include(CMakeDependentOption)
 cmake_dependent_option(SUPERTUPLE_DEVELOPMENT_BUILD "Build tests, enable warnings and errors." ON "BUILD_TESTING" OFF)
-cmake_dependent_option(SUPERTUPLE_BUILD_TESTING "Generate the test targets." ON "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
-cmake_dependent_option(SUPERTUPLE_ENABLE_PEDANTIC "Errors on warnings." ON "SUPERTUPLE_DEVELOPMENT_BUILD" OFF)
-
-# Provides paths for scripts. We first add path to the scripts we don't use but
-# parent projects might, and set the path up to parent scope.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/support")
-if(NOT SUPERTUPLE_MASTER_PROJECT)
-  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
-endif()
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
-include(HelperFunctions)
+cmake_dependent_option(SUPERTUPLE_BUILD_TESTING "Generate the test targets." ON "BUILD_TESTING" OFF)
+cmake_dependent_option(SUPERTUPLE_ENABLE_PEDANTIC "Errors on warnings." ON "BUILD_TESTING" OFF)
 
 # Discovers the project's current version and initializes it. The version is retrieved
 # from a source file where the version should be explicitly set.
-get_project_version(SUPERTUPLE_VERSION "src/supertuple/version.h")
-
-project(SuperTuple
-  LANGUAGES CXX
-  VERSION ${SUPERTUPLE_VERSION}
-  HOMEPAGE_URL "https://github.com/rodriados/supertuple"
-  DESCRIPTION "A powerful and light-weight C++ tuple implementation.")
+project(
+  SuperTuple
+    LANGUAGES CXX
+    VERSION ${SUPERTUPLE_VERSION}
+    HOMEPAGE_URL "https://github.com/rodriados/supertuple"
+    DESCRIPTION "A powerful and light-weight C++ tuple implementation.")
 
 # Installation, configuration and targets variables. These variables are used to
 # define where the project must be installed on and where to store its config files.
@@ -57,7 +53,7 @@ set(SUPERTUPLE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(SUPERTUPLE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/SuperTupleConfigVersion.cmake")
 set(SUPERTUPLE_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/SuperTupleConfig.cmake")
 set(SUPERTUPLE_CONFIG_FILE_TEMPLATE "${CMAKE_CURRENT_LIST_DIR}/cmake/SuperTupleConfig.cmake.in")
-set(SUPERTUPLE_TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+set(SUPERTUPLE_TARGETS_EXPORT_NAME "SuperTupleTargets")
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -74,21 +70,19 @@ add_library(SuperTuple INTERFACE)
 add_library(SuperTuple::SuperTuple ALIAS SuperTuple)
 
 target_compile_features(SuperTuple INTERFACE cxx_std_17)
-target_include_directories(SuperTuple
-  INTERFACE
+target_include_directories(
+  SuperTuple INTERFACE
     $<BUILD_INTERFACE:${SUPERTUPLE_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Sets the compiler flags for a pedantic compilation. We mostly assume that the
 # used compiler is GNU-compatible, although some special cases might be cared for.
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(PEDANTIC_COMPILE_FLAGS -pedantic-errors -Wall -Wextra -pedantic -Werror)
-elseif(MSVC)
-  set(PEDANTIC_COMPILE_FLAGS /W3 /WX)
-endif()
-
 if(SUPERTUPLE_ENABLE_PEDANTIC)
-  target_compile_options(SuperTuple INTERFACE ${PEDANTIC_COMPILE_FLAGS})
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-pedantic-errors -Wall -Wextra -pedantic -Werror)
+  elseif(MSVC)
+    add_compile_options(/W3 /WX)
+  endif()
 endif()
 
 # Installs the library by copying all needed files to their corresponding destination
@@ -129,12 +123,8 @@ endif()
 
 # Declaration of targets for testing. These targets are only available when this
 # project is root, therefore not used as dependency for any other.
-if(SUPERTUPLE_MASTER_PROJECT AND SUPERTUPLE_DEVELOPMENT_BUILD)
+if(BUILD_TESTING AND SUPERTUPLE_MASTER_PROJECT AND SUPERTUPLE_BUILD_TESTING)
   include(CTest)
   enable_testing()
-
-  if(SUPERTUPLE_BUILD_TESTING)
-    set(CMAKE_FOLDER "test")
-    add_subdirectory(test)
-  endif()
+  add_subdirectory(test)
 endif()

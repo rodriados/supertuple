@@ -19,10 +19,3 @@ function(get_project_version var filename)
   set(COMPLETE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
   set(${var} "${COMPLETE_VERSION}" PARENT_SCOPE)
 endfunction()
-
-# Includes an external dependency into the project.
-# @param package The external dependency package name to be included.
-function(include_external_dependency package)
-  include(FetchContent)
-  include(${CMAKE_SOURCE_DIR}/cmake/external/${package}.cmake)
-endfunction()
