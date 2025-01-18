@@ -14,38 +14,60 @@ namespace st = supertuple;
  * in diverse meaningful ways.
  * @since 1.0
  */
-TEST_CASE("general use-case for a tuple #1", "[reference][accessor]")
+TEST_CASE("general use-cases for tuples", "[reference][accessor]")
 {
-    double array[] = { 10.1, 11.2, 12.3, 13.4, 14.5, 15.6, 16.7, 17.8, 18.9, 19.1 };
+    auto tuple = st::tuple_t(0, 1, 2, 3);
+    auto& [a, b, c, d] = tuple;
 
-    auto t1 = st::tuple_t(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-    auto t2 = st::tie(array);
+    /**
+     * Test whether a tuple can be deconstructed using C++ standard tuple syntax.
+     * It is expected that the tuple can distribute its values' references to a
+     * list of variables without initially modifying them.
+     * @since 1.0
+     */
+    SECTION("tuples can be destructured") {
+        REQUIRE(a == 0);
+        REQUIRE(b == 1);
+        REQUIRE(c == 2);
+        REQUIRE(d == 3);
+    }
 
-    using numbers_t = decltype(t1);
+    /**
+     * Test whether the destructured variables can be modified by the tuple. It
+     * is expected that changing the destructured values or the tuple directly
+     * must change the other as well.
+     * @since 1.0
+     */
+    SECTION("destructured tuples keep their references") {
+        double array[] = {10., 11., 12., 13.};
 
-    auto& [a, b, c, d, e, f, g, h, i, j] = t1;
+        tuple = st::tie(array);
 
-    REQUIRE(b == 1);
-    REQUIRE(e == 4);
-    REQUIRE(g == 6);
-    REQUIRE(j == 9);
+        REQUIRE(a == 10);
+        REQUIRE(b == 11);
+        REQUIRE(c == 12);
+        REQUIRE(d == 13);
 
-    t1 = t2;
+        b = 43;
+        c = 89;
 
-    REQUIRE(t1 == st::tuple_t(10, 11, 12, 13, 14, 15, 16, 17, 18, 19));
+        REQUIRE(tuple == st::tuple_t(10, 43, 89, 13));
+    }
 
-    REQUIRE(b == 11);
-    REQUIRE(e == 14);
-    REQUIRE(g == 16);
-    REQUIRE(j == 19);
+    /**
+     * Test whether accessors can be used to access and modify tuples. It is expected
+     * that accessors keep references intact, thus allowing them to change variables
+     * that were previously destructured from the tuple.
+     * @since 1.0
+     */
+    SECTION("tuples can be modified using accessors") {
+        (decltype(tuple)::accessor_t<2>) tuple = 9;
 
-    b = 43;
-    g = 89;
+        REQUIRE(a == 0);
+        REQUIRE(b == 1);
+        REQUIRE(c == 9);
+        REQUIRE(d == 3);
 
-    (numbers_t::accessor_t<4>) t1 = 94;
-    t1.set<9>(78);
-
-    REQUIRE(t1 == st::tuple_t(10, 43, 12, 13, 94, 15, 89, 17, 18, 78));
-    REQUIRE(e == 94);
-    REQUIRE(j == 78);
+        REQUIRE(tuple == st::tuple_t(0, 1, 9, 3));
+    }
 }
