@@ -2,6 +2,8 @@
 # @file CMake tests configuration file.
 # @author Rodrigo Siqueira <rodriados@gmail.com>
 # @copyright 2025-present Rodrigo Siqueira
+cmake_minimum_required(VERSION 3.24)
+
 find_package(Catch2 REQUIRED)
 
 # The test sources should be automatically discovered by iterating over the directory.

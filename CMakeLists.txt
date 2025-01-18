@@ -2,12 +2,11 @@
 # @file CMake configuration file.
 # @author Rodrigo Siqueira <rodriados@gmail.com>
 # @copyright 2025-present Rodrigo Siqueira
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.24)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CMakeDependentOption)
 include(HelperFunctions)
@@ -44,6 +43,8 @@ project(
     VERSION ${SUPERTUPLE_VERSION}
     HOMEPAGE_URL "https://github.com/rodriados/supertuple"
     DESCRIPTION "A powerful and light-weight C++ tuple implementation.")
+
+include(GNUInstallDirs)
 
 # Installation, configuration and targets variables. These variables are used to
 # define where the project must be installed on and where to store its config files.
