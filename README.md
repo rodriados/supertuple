@@ -19,17 +19,34 @@ This library does not intend to implement or enable a full functional-programmin
 experience in C++, but to allow specific solutions to be abstracted with descriptive
 and clean code.
 
+## Features
+- **Header-only**: just include a header and you are ready to go.
+- **Haskell-inspired API**: familiar naming for functional programmers.
+- **Template metaprogramming**: works at compile-time wherever possible.
+- **Composable**: functions can be chained in expressive ways.
+- **Zero runtime overhead** for many operations due to `constexpr` evaluation.
+
 ## Install
-The library does not have any dependencies other than a C++17-compiler to be installed
-on your system. As a header-only library, you may as well directly download or copy
-the files into your own project or clone it following the steps below:
-```bash
-git clone https://github.com/rodriados/supertuple
-```
+SuperTuple is a single-header library that can be included directly in your source
+tree and does not have any dependencies other than a C++17-compatible compiler to
+be installed in your system.
+
 
 ## Usage
-To use the project, you can copy source files into your own project or install it
-on your system and then reference it in your code:
+To use the the library, you can simply copy the source file into your own project
+or install it on your system via CMake and then reference it in your code:
 ```cpp
 #include <supertuple.h>
+```
+
+## Example
+The equivalent of a `zipWith` operation in Haskell could be implemented as:
+```cpp
+#include <supertuple.h>
+
+constexpr auto result = supertuple::zipwith(
+    supertuple::tuple_t(1, 2, 3)
+  , supertuple::tuple_t(4, 5, 6)
+  , [](auto x, auto y) { return x + y; }
+); // result == supertuple::tuple_t(5, 7, 9)
 ```
