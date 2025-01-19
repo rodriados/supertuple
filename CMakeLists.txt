@@ -129,3 +129,7 @@ if(BUILD_TESTING AND SUPERTUPLE_MASTER_PROJECT AND SUPERTUPLE_BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
 endif()
+
+if(SUPERTUPLE_MASTER_PROJECT)
+  include(PackSourceCode)
+endif()
