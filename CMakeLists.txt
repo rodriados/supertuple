@@ -28,8 +28,7 @@ endif()
 
 # Command line options to control the conditions and generation of the targets.
 # The targets may be enabled on demand, depending on the user or environment needs.
-option(SUPERTUPLE_INSTALL "Generate the install target." ${SUPERTUPLE_MASTER_PROJECT})
-option(SUPERTUPLE_INSTALL_DOCS "Install documentation alongside library." ON)
+option(SUPERTUPLE_INSTALL "Generate the install target." ON)
 
 cmake_dependent_option(SUPERTUPLE_DEVELOPMENT_BUILD "Build tests, enable warnings and errors." ON "BUILD_TESTING" OFF)
 cmake_dependent_option(SUPERTUPLE_BUILD_TESTING "Generate the test targets." ON "BUILD_TESTING" OFF)
@@ -96,6 +95,11 @@ if(SUPERTUPLE_INSTALL)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+  export(
+    TARGETS SuperTuple
+    NAMESPACE SuperTuple::
+    FILE "${PROJECT_BINARY_DIR}/SuperTupleTargets.cmake")
+
   install(
     EXPORT SuperTupleTargets
     NAMESPACE SuperTuple::
@@ -130,6 +134,8 @@ if(BUILD_TESTING AND SUPERTUPLE_MASTER_PROJECT AND SUPERTUPLE_BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
+# Declaration of target for bundling and packing the project's source code to make
+# it possible to include the whole library as a single header-only file.
 if(SUPERTUPLE_MASTER_PROJECT)
   include(PackSourceCode)
 endif()
