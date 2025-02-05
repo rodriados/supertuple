@@ -4,4 +4,4 @@ outfile = build/supertuple.h
 [project]
 workingdir = src
 namespace = supertuple
-entrypoint = supertuple.h
+entrypoint = supertuple/api.h

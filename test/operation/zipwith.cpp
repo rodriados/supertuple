@@ -4,7 +4,7 @@
  * @author Rodrigo Siqueira <rodriados@gmail.com>
  * @copyright 2024-present Rodrigo Siqueira
  */
-#include <supertuple.h>
+#include <supertuple/api.h>
 #include <catch2/catch_test_macros.hpp>
 
 namespace st = supertuple;
