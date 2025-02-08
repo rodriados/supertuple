@@ -11,42 +11,50 @@ descripitive way and yet be extremely performant. Not only so, it has always bot
 me how some solutions may look very clean when developed in a functional paradigm,
 whereas quite clumsy otherwise.
 
-This project implements new tuple types, in opposition to `std::tuple`, with the
-focus of creating tuples that are memory-equivalent to a _struct_ containing the
-same types, in addition to functional operations that operate over them.
-
-This library does not intend to implement or enable a full functional-programming
-experience in C++, but to allow specific solutions to be abstracted with descriptive
-and clean code.
+**SuperTuple** provides memory-efficient tuple implementation, equivalent to a struct
+containing the same types, designed for functional programming. The library emphasizes
+clean, descriptive code with zero runtime overhead for many operations due to `constexpr`
+evaluation. While `std::tuple` is versatile, it lacks the functional operations
+and memory efficiency that **SuperTuple** provides.
 
 ## Features
-- **Header-only**: just include a header and you are ready to go.
-- **Haskell-inspired API**: familiar naming for functional programmers.
-- **Template metaprogramming**: works at compile-time wherever possible.
-- **Composable**: functions can be chained in expressive ways.
-- **Zero runtime overhead** for many operations due to `constexpr` evaluation.
+- **Header-only**: Include a single header and you are ready to go.
+- **Haskell-inspired API**: Familiar naming and behavior for functional programmers.
+- **Template Metaprogramming**: Leverages compile-time evaluation for efficiency.
+- **Composable**: Functions can be chained for expressive and readable code.
+- **Zero Runtime Overhead**: Operations are evaluated at compile-time using `constexpr`.
 
 ## Install
-SuperTuple is a single-header library that can be included directly in your source
-tree and does not have any dependencies other than a C++17-compatible compiler to
-be installed in your system.
-
+**SuperTuple** is a single-header library. To use it:
+- Either **copy the header** by downloading `supertuple.h` from the
+[latest release](https://github.com/rodriados/supertuple/releases/latest) and including
+it directly in your project.
+- Or use **CMake integration** to install via CMake for project or system-wide use.
 
 ## Usage
-To use the the library, you can simply copy the source file into your own project
-or install it on your system via CMake and then reference it in your code:
-```cpp
-#include <supertuple.h>
-```
+**SuperTuple** provides a functional tuple type, `supertuple::tuple_t`, and a variety
+of operations inspired by Haskell’s list functions. Below is an example of a key
+operation.
 
 ## Example
-The equivalent of a `zipWith` operation in Haskell could be implemented as:
+The `foldl` function performs a reduce operation over a tuple with an optional initial
+value and a binary operation.
 ```cpp
-#include <supertuple.h>
+#include <supertuple/api.h>
 
-constexpr auto result = supertuple::zipwith(
+constexpr auto result = supertuple::foldl(
     supertuple::tuple_t(1, 2, 3)
-  , supertuple::tuple_t(4, 5, 6)
-  , [](auto x, auto y) { return x + y; }
-); // result == supertuple::tuple_t(5, 7, 9)
+  , [](auto acc, auto x) { return acc + x; }
+); // result == 6 (1 + 2 + 3)
 ```
+
+## License
+
+**SuperTuple** is licensed under the MIT License. See
+[LICENSE](https://github.com/rodriados/supertuple/blob/main/LICENSE) for details.
+
+## Contributing
+
+Contributions are welcome! Please submit issues or pull requests via the
+[GitHub repository](https://github.com/rodriados/supertuple). Ensure code follows
+C++17 standards and includes appropriate tests.
