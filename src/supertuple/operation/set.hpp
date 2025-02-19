@@ -16,13 +16,28 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Modifies a tuple leaf by moving a value into it.
+     * Moves a value into a tuple leaf by its index.
      * @tparam I The requested leaf index.
      * @tparam T The type of requested leaf member.
+     * @tparam V The type of value to be moved into leaf.
      * @param leaf The selected tuple leaf member.
      * @param value The value to move into the leaf.
      */
-    template <size_t I, typename T, typename U>
+    template <size_t I, typename T, typename V>
+    SUPERTUPLE_INLINE void set(detail::leaf_t<I, T>& leaf, V&& value)
+    {
+        leaf = std::forward<decltype(value)>(value);
+    }
+
+    /**
+     * Moves a value into a tuple leaf by its unique type.
+     * @tparam T The unique type of requested leaf member.
+     * @tparam I The requested leaf index.
+     * @tparam V The type of value to be moved into leaf.
+     * @param leaf The selected tuple leaf member.
+     * @param value The value to move into the leaf.
+     */
+    template <typename T, size_t I, typename U>
     SUPERTUPLE_INLINE void set(detail::leaf_t<I, T>& leaf, U&& value)
     {
         leaf = std::forward<decltype(value)>(value);

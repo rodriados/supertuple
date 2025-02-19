@@ -177,6 +177,17 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         }
 
         /**
+         * Retrieves the value of a tuple member by its unique type.
+         * @tparam U The requested member's type.
+         * @return The member's value.
+         */
+        template <typename U>
+        SUPERTUPLE_CONSTEXPR auto get() noexcept -> decltype(auto)
+        {
+            return operation::get<U>(*this);
+        }
+
+        /**
          * Retrieves the value of a const-qualified tuple member by its index.
          * @tparam J The requested member's index.
          * @return The const-qualified member's value.
@@ -188,14 +199,36 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
         }
 
         /**
+         * Retrieves the value of a const-qualified tuple member by its unique type.
+         * @tparam U The requested member's type.
+         * @return The const-qualified member's value.
+         */
+        template <typename U>
+        SUPERTUPLE_CONSTEXPR auto get() const noexcept -> decltype(auto)
+        {
+            return operation::get<U>(*this);
+        }
+
+        /**
          * Updates the value of a tuple member by its index.
          * @tparam J The requested member's index.
-         * @tparam U The member's new value's type.
+         * @tparam V The member's new value type.
          */
-        template <size_t J, typename U>
-        SUPERTUPLE_INLINE void set(U&& value)
+        template <size_t J, typename V>
+        SUPERTUPLE_INLINE void set(V&& value)
         {
             operation::set<J>(*this, std::forward<decltype(value)>(value));
+        }
+
+        /**
+         * Updates the value of a tuple member by its unique type.
+         * @tparam U The requested member's unique type.
+         * @tparam V The member's new value type.
+         */
+        template <typename U, typename V>
+        SUPERTUPLE_INLINE void set(V&& value)
+        {
+            operation::set<U>(*this, std::forward<decltype(value)>(value));
         }
 };
 
