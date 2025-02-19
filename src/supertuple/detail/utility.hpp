@@ -31,7 +31,7 @@ namespace detail
      * @return The given return value.
      */
     template <typename T, typename ...U>
-    SUPERTUPLE_CONSTEXPR decltype(auto) ret1(T&& target, U&&...) noexcept
+    SUPERTUPLE_CONSTEXPR decltype(auto) r1(T&& target, U&&...) noexcept
     {
         return std::forward<decltype(target)>(target);
     }
