@@ -52,7 +52,7 @@ namespace detail
      */
     template <typename T, typename F, typename B, size_t I, size_t ...J>
     SUPERTUPLE_CONSTEXPR decltype(auto) scan(
-         T&& t, F&& lambda, B&& base
+        T&& t, F&& lambda, B&& base
       , std::index_sequence<I, J...>
     ) {
         return operation::prepend(

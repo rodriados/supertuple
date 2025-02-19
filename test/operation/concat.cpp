@@ -19,11 +19,13 @@ TEST_CASE("concat-operation over owning tuples", "[concat][owning]")
 {
     constexpr auto t1 = st::tuple_t(1, 2, 3, 4);
     constexpr auto t2 = st::tuple_t(5, 6, 7);
+    constexpr auto t3 = st::tuple_t(8);
+    constexpr auto t4 = st::tuple_t(9);
 
-    constexpr auto r = st::concat(t1, t2);
+    constexpr auto r = st::concat(t1, t2, t3, t4);
 
-    STATIC_REQUIRE(decltype(r)::count == 7);
-    STATIC_REQUIRE(r == st::tuple_t(1, 2, 3, 4, 5, 6, 7));
+    STATIC_REQUIRE(decltype(r)::count == 9);
+    STATIC_REQUIRE(r == st::tuple_t(1, 2, 3, 4, 5, 6, 7, 8, 9));
 }
 
 /**
