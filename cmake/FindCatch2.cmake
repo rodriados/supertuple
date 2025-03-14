@@ -20,7 +20,7 @@ FetchContent_Declare(
 
 # Now that the package is declared, we must find and configure it so that its variables
 # and targets are made available for the parent context.
-find_package(Catch2 REQUIRED)
+FetchContent_MakeAvailable(Catch2)
 
 # Also, a helper function for automatically finding tests is provided. We must include
 # this function as well, to provide a better downstream experience.

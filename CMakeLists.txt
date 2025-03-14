@@ -101,10 +101,12 @@ if(SUPERTUPLE_INSTALL)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-  export(
-    TARGETS SuperTuple
-    NAMESPACE SuperTuple::
-    FILE "${PROJECT_BINARY_DIR}/SuperTupleTargets.cmake")
+  if(SUPERTUPLE_MASTER_PROJECT)
+    export(
+      TARGETS SuperTuple
+      NAMESPACE SuperTuple::
+      FILE "${PROJECT_BINARY_DIR}/SuperTupleTargets.cmake")
+  endif()
 
   install(
     EXPORT SuperTupleTargets
