@@ -9,88 +9,89 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/detail/leaf.hpp>
+#include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/node.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
 inline namespace operation
 {
     /**
-     * Retrieves a tuple leaf by its index and returns its value.
-     * @tparam I The requested leaf index.
-     * @tparam T The type of the requested leaf member.
-     * @param leaf The selected tuple leaf member.
-     * @return The leaf's value.
+     * Retrieve a tuple node by its index and returns its value.
+     * @tparam I The requested node index.
+     * @tparam T The type of the requested node member.
+     * @param node The selected tuple node member.
+     * @return The node element reference.
      */
-    template <size_t I, typename T>
-    SUPERTUPLE_CONSTEXPR T& get(detail::leaf_t<I, T>& leaf) noexcept
+    template <id_t I, typename T>
+    SUPERTUPLE_CUDA_CONSTEXPR T& get(detail::node_t<I, T>& node) noexcept
     {
-        return leaf;
+        return node;
     }
 
     /**
-     * Retrieves a tuple leaf by its unique type and returns its value.
-     * @tparam T The type of the requested leaf member.
-     * @tparam I The requested leaf index.
-     * @param leaf The selected tuple leaf member.
-     * @return The leaf's value.
+     * Retrieve a tuple node by its unique type and returns its value.
+     * @tparam T The type of the requested node member.
+     * @tparam I The requested node index.
+     * @param node The selected tuple node member.
+     * @return The node element reference.
      */
-    template <typename T, size_t I>
-    SUPERTUPLE_CONSTEXPR T& get(detail::leaf_t<I, T>& leaf) noexcept
+    template <typename T, id_t I>
+    SUPERTUPLE_CUDA_CONSTEXPR T& get(detail::node_t<I, T>& node) noexcept
     {
-        return leaf;
+        return node;
     }
 
     /**
-     * Retrieves const-qualified tuple leaf by its index and returns its value.
-     * @tparam I The requested leaf index.
-     * @tparam T The type of the requested leaf member.
-     * @param leaf The selected const-qualified tuple leaf member.
-     * @return The const-qualified leaf's value.
+     * Retrieve const-qualified tuple node by its index and returns its value.
+     * @tparam I The requested node index.
+     * @tparam T The type of the requested node member.
+     * @param node The selected const-qualified tuple node member.
+     * @return The const-qualified node's value.
      */
-    template <size_t I, typename T>
-    SUPERTUPLE_CONSTEXPR const T& get(const detail::leaf_t<I, T>& leaf) noexcept
+    template <id_t I, typename T>
+    SUPERTUPLE_CUDA_CONSTEXPR const T& get(const detail::node_t<I, T>& node) noexcept
     {
-        return leaf;
+        return node;
     }
 
     /**
-     * Retrieves const-qualified tuple leaf by its unique type and returns its value.
-     * @tparam T The type of the requested leaf member.
-     * @tparam I The requested leaf index.
-     * @param leaf The selected const-qualified tuple leaf member.
-     * @return The const-qualified leaf's value.
+     * Retrieve const-qualified tuple node by its unique type and returns its value.
+     * @tparam T The type of the requested node member.
+     * @tparam I The requested node index.
+     * @param node The selected const-qualified tuple node member.
+     * @return The const-qualified node's value.
      */
-    template <typename T, size_t I>
-    SUPERTUPLE_CONSTEXPR const T& get(const detail::leaf_t<I, T>& leaf) noexcept
+    template <typename T, id_t I>
+    SUPERTUPLE_CUDA_CONSTEXPR const T& get(const detail::node_t<I, T>& node) noexcept
     {
-        return leaf;
+        return node;
     }
 
     /**
-     * Retrieves a tuple leaf by its index and moves its contents.
-     * @tparam I The requested leaf index.
-     * @tparam T The type of the requested leaf member.
-     * @param leaf The selected tuple leaf member.
-     * @return The leaf value's move reference.
+     * Retrieve a tuple node by its index and moves its contents.
+     * @tparam I The requested node index.
+     * @tparam T The type of the requested node member.
+     * @param node The selected tuple node member.
+     * @return The node value's move reference.
      */
-    template <size_t I, typename T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) get(detail::leaf_t<I, T>&& leaf) noexcept
+    template <id_t I, typename T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get(detail::node_t<I, T>&& node) noexcept
     {
-        return std::forward<T>(leaf);
+        return std::forward<T>(node);
     }
 
     /**
-     * Retrieves a tuple leaf by its unique type and moves its contents.
-     * @tparam T The type of the requested leaf member.
-     * @tparam I The requested leaf index.
-     * @param leaf The selected tuple leaf member.
-     * @return The leaf value's move reference.
+     * Retrieve a tuple node by its unique type and moves its contents.
+     * @tparam T The type of the requested node member.
+     * @tparam I The requested node index.
+     * @param node The selected tuple node member.
+     * @return The node value's move reference.
      */
-    template <typename T, size_t I>
-    SUPERTUPLE_CONSTEXPR decltype(auto) get(detail::leaf_t<I, T>&& leaf) noexcept
+    template <typename T, id_t I>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get(detail::node_t<I, T>&& node) noexcept
     {
-        return std::forward<T>(leaf);
+        return std::forward<T>(node);
     }
 }
 

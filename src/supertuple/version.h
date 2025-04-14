@@ -10,7 +10,7 @@
  * The preprocessor macros encoding the current SuperTuple library release version.
  * This is guaranteed to change with every SuperTuple release.
  */
-#define SUPERTUPLE_VERSION 10102
+#define SUPERTUPLE_VERSION 10200
 
 /**
  * The preprocessor macros encoding the release policy's values to the current SuperTuple
