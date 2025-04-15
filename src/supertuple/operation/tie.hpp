@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <utility>
+
 #include <supertuple/environment.h>
 #include <supertuple/tuple.hpp>
 
@@ -14,42 +16,42 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Gathers variables references into a tuple instance, allowing them to capture
-     * values directly from value tuples.
-     * @tparam T The gathered variables types.
-     * @param ref The gathered variables references.
+     * Gather variable references into a tuple instance, allowing them to capture
+     * values directly from compatible value tuples.
+     * @tparam T The gathered variable types.
+     * @param ref The gathered variable references.
      * @return The new tuple of references.
      */
     template <typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T&... ref) noexcept
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) tie(T&... ref) noexcept
     {
         return tuple_t<T&...>(ref...);
     }
 
     /**
-     * Gathers an array's elements' references into a tuple instance, allowing them
-     * to capture values directly from value tuples.
-     * @tparam T The array's elements' type.
+     * Gather the references of each element of a plain array into a tuple instance,
+     * allowing them to capture values directly from compatible value tuples.
+     * @tparam T The array elements type.
      * @tparam N The size of the given array.
-     * @param ref The target array's reference.
+     * @param ref The target array reference.
      * @return The new tuple of references.
      */
     template <typename T, size_t N>
-    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T (&ref)[N]) noexcept
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) tie(T (&ref)[N]) noexcept
     {
         return ntuple_t<T&, N>(ref);
     }
 
     /**
-     * Gathers move-references from an array's elements into a tuple instance, allowing
-     * them to be moved directly into other variables.
-     * @tparam T The array's elements' type.
+     * Gather move-references of each element of an array from an array, allowing
+     * them to be moved directly into compatible variables.
+     * @tparam T The array elements type.
      * @tparam N The size of the given array.
-     * @param ref The target array's move-reference.
+     * @param ref The target array move-reference.
      * @return The new tuple of move-references.
      */
     template <typename T, size_t N>
-    SUPERTUPLE_CONSTEXPR decltype(auto) tie(T (&&ref)[N]) noexcept
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) tie(T (&&ref)[N]) noexcept
     {
         return ntuple_t<T&&, N>(std::forward<decltype(ref)>(ref));
     }

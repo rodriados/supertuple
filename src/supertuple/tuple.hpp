@@ -145,7 +145,7 @@ namespace detail
      */
     template <typename T, id_t ...I>
     SUPERTUPLE_CUDA_CONSTEXPR auto repeater(id_sequence_t<I...>) noexcept
-    -> tuple_t<typename identity_t<T, I>::type...>;
+    -> supertuple::tuple_t<typename identity_t<T, I>::type...>;
 }
 
 /**

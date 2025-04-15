@@ -12,6 +12,7 @@
 #include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
@@ -19,53 +20,53 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Applies a functor to all of a tuple's elements.
+     * Apply a functor to all elements of a tuple.
      * @tparam F The functor type to apply.
-     * @tparam A The types of extra arguments.
-     * @tparam I The tuple's indeces.
-     * @tparam T The tuple's types.
+     * @tparam A The types of extra functor arguments.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to apply functor to.
      * @param lambda The functor to apply to the tuple.
-     * @param args The remaining functor arguments.
+     * @param args The extra functor arguments.
      * @return The new transformed tuple.
      */
-    template <typename F, typename ...A, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) apply(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
+    template <typename F, typename ...A, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) apply(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda
       , A&&... args
     ) {
         return tuple_t(
             detail::invoke(
                 lambda
-              , operation::get<I>(t)
-              , std::forward<decltype(args)>(args)...
+              , get<I>(t)
+              , std::forward<A>(args)...
             )...
         );
     }
 
     /**
-     * Applies a functor to all of a moving tuple's elements.
+     * Apply a functor to all elements of a moving tuple.
      * @tparam F The functor type to apply.
-     * @tparam A The types of extra arguments.
-     * @tparam I The tuple's indeces.
-     * @tparam T The tuple's types.
+     * @tparam A The types of extra functor arguments.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to apply functor to.
      * @param lambda The functor to apply to the tuple.
-     * @param args The remaining functor arguments.
+     * @param args The extra functor arguments.
      * @return The new transformed tuple.
      */
-    template <typename F, typename ...A, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) apply(
-        tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
+    template <typename F, typename ...A, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) apply(
+        detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
       , F&& lambda
       , A&&... args
     ) {
         return tuple_t(
             detail::invoke(
                 lambda
-              , operation::get<I>(std::forward<decltype(t)>(t))
-              , std::forward<decltype(args)>(args)...
+              , get<I>(std::forward<decltype(t)>(t))
+              , std::forward<A>(args)...
             )...
         );
     }
