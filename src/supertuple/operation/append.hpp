@@ -22,8 +22,8 @@ inline namespace operation
     /**
      * Append an element to the end of a tuple.
      * @tparam E The type of the element to append to tuple.
-     * @tparam I The index sequence to match from tuple.
-     * @tparam T The list of tuple element types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element appended to.
      * @param element The element to append to the tuple.
      * @return The resulting tuple.
@@ -42,8 +42,8 @@ inline namespace operation
     /**
      * Append an element to the end of a moving tuple.
      * @tparam E The type of the element to append to tuple.
-     * @tparam I The index sequence to match from tuple.
-     * @tparam T The list of tuple element types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element appended to.
      * @param element The element to append to the tuple.
      * @return The resulting tuple.

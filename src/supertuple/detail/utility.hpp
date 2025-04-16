@@ -69,7 +69,7 @@ namespace detail
      * @param b The reference to the second variable to have its contents swapped.
      */
     template <typename T, typename U>
-    SUPERTUPLE_CONSTEXPR void swap(T& a, U& b)
+    SUPERTUPLE_CUDA_INLINE void swap(T& a, U& b)
     {
         T x = std::move(a);
           a = std::move(b);
@@ -83,7 +83,7 @@ namespace detail
      * @return The functor invokation result.
      */
     template <typename F>
-    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda)
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) invoke(const F& lambda)
     {
         return (lambda)();
     }
@@ -100,7 +100,7 @@ namespace detail
      * @return The functor invokation result.
      */
     template <typename F, typename O, typename ...A>
-    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
     {
         if constexpr (std::is_member_function_pointer_v<F>) {
             return (object.*lambda)(std::forward<decltype(args)>(args)...);

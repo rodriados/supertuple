@@ -9,6 +9,7 @@
 #include <utility>
 
 #include <supertuple/environment.h>
+#include <supertuple/detail/utility.hpp>
 #include <supertuple/operation/get.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
@@ -38,40 +39,44 @@ namespace detail
             SUPERTUPLE_CONSTEXPR converter_t(converter_t&&) noexcept = delete;
 
             /**
-             * Acquires a reference or ownership of the tuple to convert.
+             * Acquire a reference or ownership of the tuple to convert.
              * @param t The tuple reference or instance to be converted.
              */
-            SUPERTUPLE_CONSTEXPR converter_t(reference_t&& t)
+            SUPERTUPLE_CUDA_CONSTEXPR converter_t(reference_t&& t)
               : m_ref (std::forward<decltype(t)>(t))
             {}
 
-            SUPERTUPLE_CONSTEXPR converter_t& operator=(const converter_t&) noexcept = delete;
-            SUPERTUPLE_CONSTEXPR converter_t& operator=(converter_t&&) noexcept = delete;
+            SUPERTUPLE_INLINE converter_t& operator=(const converter_t&) noexcept = delete;
+            SUPERTUPLE_INLINE converter_t& operator=(converter_t&&) noexcept = delete;
 
             /**
-             * Converts the wrapped tuple into the requested type.
+             * Convert the wrapped tuple into the requested type.
              * @tparam U The type to which the tuple must convert to.
              * @return An instance of the tuple converted to the requested type.
              */
             template <typename U>
-            SUPERTUPLE_CONSTEXPR operator U() &&
+            SUPERTUPLE_CUDA_CONSTEXPR operator U() &&
             {
-                return forward<U>(std::make_index_sequence<wrapped_t::count>());
+                return forward<U>(detail::make_id_sequence_t<wrapped_t::count>());
             }
 
         private:
             /**
-             * Forwards the wrapped tuple elements to the conversion target type.
+             * Forward the wrapped tuple elements to the conversion target type.
              * @tparam U The type to which the tuple must convert to.
              * @return A new instance of the conversion target type.
              */
-            template <typename U, size_t ...I>
-            SUPERTUPLE_CONSTEXPR U forward(std::index_sequence<I...>)
+            template <typename U, id_t ...I>
+            SUPERTUPLE_CUDA_CONSTEXPR U forward(detail::id_sequence_t<I...>)
             {
-                return U {operation::get<I>(std::forward<decltype(m_ref)>(m_ref))...};
+                return U {get<I>(std::forward<decltype(m_ref)>(m_ref))...};
             }
     };
 
+    /*
+     * Deduction guides for auxiliary converter type.
+     * @since 1.0
+     */
     template <typename T> converter_t(T&) -> converter_t<T&>;
     template <typename T> converter_t(const T&) -> converter_t<const T&>;
     template <typename T> converter_t(T&&) -> converter_t<T>;
@@ -80,15 +85,15 @@ namespace detail
 inline namespace operation
 {
     /**
-     * Converts a tuple to a generic compatible type.
+     * Convert a tuple to a generic compatible type.
      * @tparam T The type of the tuple to be converted.
      * @param t The tuple instance to be converted.
      * @return A generic-convertible tuple wrapper instance.
      */
     template <typename T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) convert(T&& t)
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) convert(T&& t)
     {
-        return detail::converter_t(std::forward<decltype(t)>(t));
+        return detail::converter_t(std::forward<T>(t));
     }
 }
 

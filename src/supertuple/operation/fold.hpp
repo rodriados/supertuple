@@ -9,9 +9,9 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 #include <supertuple/operation/head.hpp>
 #include <supertuple/operation/last.hpp>
@@ -29,9 +29,9 @@ namespace detail
      * @return The result of the fold-operation.
      */
     template <typename T, typename F, typename B>
-    SUPERTUPLE_CONSTEXPR decltype(auto) fold(
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) fold(
         T&&, F&&, B&& base
-      , std::index_sequence<>
+      , detail::id_sequence_t<>
     ) {
         return (B) base;
     }
@@ -42,21 +42,21 @@ namespace detail
      * @tparam F The functor type to fold the tuple with.
      * @tparam B The reduction base and result value type.
      * @tparam I The tuple index to act upon.
-     * @tparam J The tuple sequence indeces.
+     * @tparam J The tuple remaining index sequence.
      * @param t The tuple to be folded.
-     * @param lambda The functor used to create the new elements.
+     * @param lambda The functor to fold the tuple with.
      * @param base The fold-operation base value.
      * @return The result of the fold-operation.
      */
-    template <typename T, typename F, typename B, size_t I, size_t ...J>
-    SUPERTUPLE_CONSTEXPR decltype(auto) fold(
+    template <typename T, typename F, typename B, id_t I, id_t ...J>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) fold(
         T&& t, F&& lambda, B&& base
-      , std::index_sequence<I, J...>
+      , detail::id_sequence_t<I, J...>
     ) {
         return detail::fold(
             t, lambda
-          , detail::invoke(lambda, base, operation::get<I>(t))
-          , std::index_sequence<J...>()
+          , detail::invoke(lambda, base, get<I>(t))
+          , detail::id_sequence_t<J...>()
         );
     }
 }
@@ -64,90 +64,94 @@ namespace detail
 inline namespace operation
 {
     /**
-     * Performs a left-fold reduction over a tuple.
+     * Perform a left-fold reduction over a tuple.
      * @tparam F The functor type to fold the tuple with.
      * @tparam B The fold operation base type.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to fold.
-     * @param lambda The functor used to fold the tuple with.
+     * @param lambda The functor to fold the tuple with.
      * @param base The folding base value.
      * @return The fold resulting value.
      */
-    template <typename F, typename B, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
+    template <typename F, typename B, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) foldl(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda
       , B&& base
     ) {
         return detail::fold(
-            t, lambda, base
-          , std::index_sequence<I...>()
+            t, lambda
+          , std::forward<B>(base)
+          , detail::id_sequence_t<I...>()
         );
     }
 
     /**
-     * Performs a left-fold reduction without base over a tuple.
+     * Perform a left-fold reduction without base over a tuple.
      * @tparam F The functor type to fold the tuple with.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to fold.
-     * @param lambda The functor used to fold the tuple with.
+     * @param lambda The functor to fold the tuple with.
      * @return The fold resulting value.
      */
-    template <typename F, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
-        const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
+    template <typename F, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) foldl(
+        const detail::tuple_t<detail::id_sequence_t<0, I...>, T...>& t
       , F&& lambda
     ) {
         return detail::fold(
-            t, lambda, operation::head(t)
-          , std::index_sequence<I...>()
+            t, lambda
+          , operation::head(t)
+          , detail::id_sequence_t<I...>()
         );
     }
 
     /**
-     * Performs a right-fold reduction over a tuple.
+     * Perform a right-fold reduction over a tuple.
      * @tparam F The functor type to fold the tuple with.
      * @tparam B The fold operation base type.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to fold.
-     * @param lambda The functor used to fold the tuple with.
+     * @param lambda The functor to fold the tuple with.
      * @param base The folding base value.
      * @return The fold resulting value.
      */
-    template <typename F, typename B, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) foldr(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
+    template <typename F, typename B, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) foldr(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda
       , B&& base
     ) {
-        constexpr size_t J = sizeof...(I);
+        constexpr id_t J = sizeof...(I);
         return detail::fold(
-            t, detail::flip(lambda), base
-          , std::index_sequence<(J-I-1)...>()
+            t, detail::flip(lambda)
+          , std::forward<B>(base)
+          , detail::id_sequence_t<(J-I-1)...>()
         );
     }
 
     /**
-     * Performs a right-fold reduction without base over a tuple.
+     * Perform a right-fold reduction without base over a tuple.
      * @tparam F The functor type to fold the tuple with.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to fold.
-     * @param lambda The functor used to fold the tuple with.
+     * @param lambda The functor to fold the tuple with.
      * @return The fold resulting value.
      */
-    template <typename F, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) foldr(
-        const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
+    template <typename F, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) foldr(
+        const detail::tuple_t<detail::id_sequence_t<0, I...>, T...>& t
       , F&& lambda
     ) {
-        constexpr size_t J = 1 + sizeof...(I);
+        constexpr id_t J = 1 + sizeof...(I);
         return detail::fold(
-            t, detail::flip(lambda), operation::last(t)
-          , std::index_sequence<(J-I-1)...>()
+            t, detail::flip(lambda)
+          , operation::last(t)
+          , detail::id_sequence_t<(J-I-1)...>()
         );
     }
 }
