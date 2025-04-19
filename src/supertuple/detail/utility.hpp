@@ -34,11 +34,19 @@ namespace detail
 
     /**
      * Auxiliary type for enumerating elements in a tuple.
-     * @tparam I The enumeration of the elements in tuple.
+     * @tparam I The enumeration of elements in a tuple.
      * @since 1.2
      */
     template <id_t ...I>
     using id_sequence_t = std::integer_sequence<id_t, I...>;
+
+    /**
+     * Auxiliary type for enumerating elements in a tuple in reverse.
+     * @tparam I The enumeration of elements in a tuple in reverse.
+     * @since 1.2
+     */
+    template <id_t ...I>
+    using id_reverse_sequence_t = id_sequence_t<(sizeof...(I)-1-I)...>;
 
     /**
      * Auxiliary type for creating an id sequence.

@@ -26,6 +26,7 @@
 #include <supertuple/operation/prepend.hpp>
 #include <supertuple/operation/concat.hpp>
 #include <supertuple/operation/reverse.hpp>
+#include <supertuple/operation/select.hpp>
 #include <supertuple/operation/fold.hpp>
 #include <supertuple/operation/scan.hpp>
 #include <supertuple/operation/apply.hpp>

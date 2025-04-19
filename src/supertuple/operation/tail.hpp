@@ -9,11 +9,10 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
 #include <supertuple/detail/tuple.hpp>
-#include <supertuple/operation/get.hpp>
+#include <supertuple/operation/select.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
@@ -30,9 +29,7 @@ inline namespace operation
     SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) tail(
         const detail::tuple_t<detail::id_sequence_t<0, I...>, T...>& t
     ) {
-        using in_tuple_t = tuple_t<T...>;
-        using out_tuple_t = tuple_t<tuple_element_t<in_tuple_t, I>...>;
-        return out_tuple_t(get<I>(t)...);
+        return select(t, detail::id_sequence_t<I...>());
     }
 
     /**
@@ -46,9 +43,10 @@ inline namespace operation
     SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) tail(
         detail::tuple_t<detail::id_sequence_t<0, I...>, T...>&& t
     ) {
-        using in_tuple_t = tuple_t<T...>;
-        using out_tuple_t = tuple_t<tuple_element_t<in_tuple_t, I>...>;
-        return out_tuple_t(get<I>(std::forward<decltype(t)>(t))...);
+        return select(
+            std::forward<decltype(t)>(t)
+          , detail::id_sequence_t<I...>()
+        );
     }
 }
 
