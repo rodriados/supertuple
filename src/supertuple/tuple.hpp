@@ -62,7 +62,11 @@ class tuple_t : public detail::tuple_t<detail::make_id_sequence_t<sizeof...(T)>,
         SUPERTUPLE_CONSTEXPR tuple_t(const tuple_t&) = default;
         SUPERTUPLE_CONSTEXPR tuple_t(tuple_t&&) = default;
 
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
         using super_t::super_t;
+      #else
+        using super_t::tuple_t;
+      #endif
 
         SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t&) = default;
         SUPERTUPLE_INLINE tuple_t& operator=(tuple_t&&) = default;
@@ -218,7 +222,11 @@ class ntuple_t : public decltype(detail::repeater<T>(detail::make_id_sequence_t<
           : ntuple_t (std::forward<decltype(array)>(array), identity_t())
         {}
 
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
         using super_t::super_t;
+      #else
+        using super_t::tuple_t;
+      #endif
 
         SUPERTUPLE_INLINE ntuple_t& operator=(const ntuple_t&) = default;
         SUPERTUPLE_INLINE ntuple_t& operator=(ntuple_t&&) = default;
@@ -276,7 +284,11 @@ class pair_t : public tuple_t<T, U>
         SUPERTUPLE_CONSTEXPR pair_t(const pair_t&) = default;
         SUPERTUPLE_CONSTEXPR pair_t(pair_t&&) = default;
 
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
         using super_t::super_t;
+      #else
+        using super_t::tuple_t;
+      #endif
 
         SUPERTUPLE_INLINE pair_t& operator=(const pair_t&) = default;
         SUPERTUPLE_INLINE pair_t& operator=(pair_t&&) = default;
