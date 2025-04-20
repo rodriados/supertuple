@@ -16,6 +16,32 @@
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
+namespace detail
+{
+    /**
+     * Iterate over the elements of a tuple in the given sequence order.
+     * @tparam F The functor type to apply.
+     * @tparam T The generic tuple type.
+     * @tparam A The functor extra arguments types.
+     * @tparam K The tuple index sequence order.
+     * @param lambda The functor to apply to the tuple.
+     * @param t The tuple to iterate over.
+     * @param args The extra functor arguments.
+     */
+    template <typename F, typename T, typename ...A, id_t ...K>
+    SUPERTUPLE_CUDA_INLINE decltype(auto) foreach(
+        F&& lambda, T&& t
+      , detail::id_sequence_t<K...>
+      , A&&... args
+    ) {
+        ((void) detail::invoke(
+            lambda
+          , get<K>(std::forward<T>(t))
+          , std::forward<A>(args)...
+        ), ...);
+    }
+}
+
 inline namespace operation
 {
     /**
@@ -33,10 +59,11 @@ inline namespace operation
         detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda, A&&... args
     ) {
-        ((void) detail::invoke(
-            lambda, get<I>(t)
+        detail::foreach(
+            lambda, t
+          , detail::id_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 
     /**
@@ -54,10 +81,11 @@ inline namespace operation
         const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda, A&&... args
     ) {
-        ((void) detail::invoke(
-            lambda, get<I>(t)
+        detail::foreach(
+            lambda, t
+          , detail::id_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 
     /**
@@ -75,11 +103,12 @@ inline namespace operation
         detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
       , F&& lambda, A&&... args
     ) {
-        ((void) detail::invoke(
+        detail::foreach(
             lambda
-          , get<I>(std::forward<decltype(t)>(t))
+          , std::forward<decltype(t)>(t)
+          , detail::id_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 
     /**
@@ -97,11 +126,11 @@ inline namespace operation
         detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda, A&&... args
     ) {
-        constexpr size_t J = sizeof...(I);
-        ((void) detail::invoke(
-            lambda, get<J-I-1>(t)
+        detail::foreach(
+            lambda, t
+          , detail::id_reverse_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 
     /**
@@ -119,11 +148,11 @@ inline namespace operation
         const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
       , F&& lambda, A&&... args
     ) {
-        constexpr size_t J = sizeof...(I);
-        ((void) detail::invoke(
-            lambda, get<J-I-1>(t)
+        detail::foreach(
+            lambda, t
+          , detail::id_reverse_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 
     /**
@@ -141,12 +170,12 @@ inline namespace operation
         detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
       , F&& lambda, A&&... args
     ) {
-        constexpr size_t J = sizeof...(I);
-        ((void) detail::invoke(
+        detail::foreach(
             lambda
-          , get<J-I-1>(std::forward<decltype(t)>(t))
+          , std::forward<decltype(t)>(t)
+          , detail::id_reverse_sequence_t<I...>()
           , std::forward<A>(args)...
-        ), ...);
+        );
     }
 }
 

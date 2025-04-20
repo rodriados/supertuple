@@ -40,12 +40,13 @@ TEST_CASE("concat-operation over tuples with references", "[concat][ref]")
 
     auto t1 = st::tuple_t(1, 2, 3);
     auto t2 = st::tie(array);
+    auto t3 = st::tuple_t(8, 9);
 
-    const auto r = st::concat(t1, t2);
+    const auto r = st::concat(t1, t2, t3);
 
     for (int i = 0; i < 4; ++i)
         array[i] += 2;
 
-    STATIC_REQUIRE(decltype(r)::count == 7);
-    REQUIRE(r == st::tuple_t(1, 2, 3, 6, 7, 8, 9));
+    STATIC_REQUIRE(decltype(r)::count == 9);
+    REQUIRE(r == st::tuple_t(1, 2, 3, 6, 7, 8, 9, 8, 9));
 }

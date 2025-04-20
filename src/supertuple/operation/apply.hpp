@@ -33,13 +33,11 @@ inline namespace operation
     template <typename F, typename ...A, id_t ...I, typename ...T>
     SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) apply(
         const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
-      , F&& lambda
-      , A&&... args
+      , F&& lambda, A&&... args
     ) {
         return tuple_t(
             detail::invoke(
-                lambda
-              , get<I>(t)
+                lambda, get<I>(t)
               , std::forward<A>(args)...
             )...
         );
@@ -59,8 +57,7 @@ inline namespace operation
     template <typename F, typename ...A, id_t ...I, typename ...T>
     SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) apply(
         detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
-      , F&& lambda
-      , A&&... args
+      , F&& lambda, A&&... args
     ) {
         return tuple_t(
             detail::invoke(
