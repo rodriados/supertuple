@@ -12,6 +12,7 @@
 #include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
@@ -19,42 +20,42 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Prepends an elements to the beginning of a tuple.
+     * Prepend an element to the beginning of a tuple.
      * @tparam E The type of the element to prepend to tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element prepended to.
      * @param element The element to prepend to the tuple.
      * @return The resulting tuple.
      */
-    template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) prepend(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
-      , const E& element
+    template <typename E, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) prepend(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
+      , E&& element
     ) {
         return tuple_t<E, T...>(
-            element
-          , operation::get<I>(t)...
+            std::forward<E>(element)
+          , get<I>(t)...
         );
     }
 
     /**
-     * Prepends an elements to the beginning and moves a tuple.
+     * Prepend an element to the beginning of a moving tuple.
      * @tparam E The type of the element to prepend to tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element prepended to.
      * @param element The element to prepend to the tuple.
      * @return The resulting tuple.
      */
-    template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) prepend(
-        tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
+    template <typename E, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) prepend(
+        detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
       , E&& element
     ) {
         return tuple_t<E, T...>(
-            std::forward<decltype(element)>(element)
-          , operation::get<I>(std::forward<decltype(t)>(t))...
+            std::forward<E>(element)
+          , get<I>(std::forward<decltype(t)>(t))...
         );
     }
 }

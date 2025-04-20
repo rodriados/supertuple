@@ -6,50 +6,98 @@
  */
 #pragma once
 
+#include <cstddef>
 #include <utility>
 
 #include <supertuple/environment.h>
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
+/**
+ * The tuple element identifier and indexing type.
+ * This type should be used to index and identify elements within a tuple.
+ * @since 1.2
+ */
+using id_t = size_t;
+
 namespace detail
 {
     /**
-     * Returns the type unchanged. This is useful to produce a repeating list of the
-     * given type parameter.
+     * Keep the given type unchanged.
+     * This type is useful for some functional contexts and to produce a repetible
+     * copy of the given type if needed.
      * @tpatam T The identity type.
      * @since 1.0
      */
-    template <typename T, size_t = 0>
+    template <typename T, id_t = 0>
     struct identity_t { using type = T; };
 
     /**
-     * Returns the first parameter from a variadic list of elements. This function
-     * is useful when dealing with type-packs and it is needed to extract the first.
-     * @tparam T The type of the value to be returned.
-     * @tparam U The type of the values to ignore.
-     * @return The given return value.
+     * Auxiliary type for enumerating elements in a tuple.
+     * @tparam I The enumeration of elements in a tuple.
+     * @since 1.2
      */
-    template <typename T, typename ...U>
-    SUPERTUPLE_CONSTEXPR decltype(auto) r1(T&& target, U&&...) noexcept
+    template <id_t ...I>
+    using id_sequence_t = std::integer_sequence<id_t, I...>;
+
+    /**
+     * Auxiliary type for enumerating elements in a tuple in reverse.
+     * @tparam I The enumeration of elements in a tuple in reverse.
+     * @since 1.2
+     */
+    template <id_t ...I>
+    using id_reverse_sequence_t = id_sequence_t<(sizeof...(I)-1-I)...>;
+
+    /**
+     * Auxiliary type for creating an id sequence.
+     * @tparam I The number of elements to enumerate in the sequence.
+     * @since 1.2
+     */
+    template <id_t I>
+    using make_id_sequence_t = std::make_integer_sequence<id_t, I>;
+
+    /**
+     * Auxiliary function to return a reference to the given first parameter.
+     * @tparam T The type of the value to be returned.
+     * @tparam W The type of the values to ignore.
+     * @param _this The pointer to the reference to be returned.
+     * @return The given return value reference.
+     */
+    template <typename T, typename ...W>
+    SUPERTUPLE_CUDA_CONSTEXPR T& _(T *_this, W&&...) noexcept
     {
-        return std::forward<decltype(target)>(target);
+        return *_this;
     }
 
     /**
-     * Invokes a functor that takes no arguments.
+     * Swap the contents of two variables of mutually convertible types.
+     * @tparam T The first variable type.
+     * @tparam U The second variable type.
+     * @param a The reference to the first variable to have its contents swapped.
+     * @param b The reference to the second variable to have its contents swapped.
+     */
+    template <typename T, typename U>
+    SUPERTUPLE_CUDA_INLINE void swap(T& a, U& b)
+    {
+        T x = std::move(a);
+          a = std::move(b);
+          b = std::move(x);
+    }
+
+    /**
+     * Invoke a functor that takes no arguments.
      * @tparam F The functor type.
      * @param lambda The functor instance to be invoked.
      * @return The functor invokation result.
      */
     template <typename F>
-    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda)
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) invoke(const F& lambda)
     {
         return (lambda)();
     }
 
     /**
-     * Seamlessly invokes a functor depending on whether its a free function,
+     * Seamlessly invoke a functor depending on whether its a free function,
      * a lambda or an unbound member function pointer.
      * @tparam F The functor type.
      * @tparam O The first invoking parameter type or object type to bind to.
@@ -60,7 +108,7 @@ namespace detail
      * @return The functor invokation result.
      */
     template <typename F, typename O, typename ...A>
-    SUPERTUPLE_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) invoke(const F& lambda, O&& object, A&&... args)
     {
         if constexpr (std::is_member_function_pointer_v<F>) {
             return (object.*lambda)(std::forward<decltype(args)>(args)...);
@@ -73,7 +121,7 @@ namespace detail
     }
 
     /**
-     * Flips the first two parameters of a functor.
+     * Flip the first two parameters of a functor.
      * @tparam F The functor type.
      * @param lambda The functor to have its parameters order flipped.
      * @return The given functor with flipped parameter order.

@@ -12,6 +12,7 @@
 #include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
@@ -19,42 +20,42 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Appends an elements to the end of a tuple.
+     * Append an element to the end of a tuple.
      * @tparam E The type of the element to append to tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element appended to.
      * @param element The element to append to the tuple.
      * @return The resulting tuple.
      */
-    template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) append(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
-      , const E& element
+    template <typename E, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) append(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
+      , E&& element
     ) {
         return tuple_t<T..., E>(
-            operation::get<I>(t)...
-          , element
+            get<I>(t)...
+          , std::forward<E>(element)
         );
     }
 
     /**
-     * Appends an elements to the end and moves a tuple.
+     * Append an element to the end of a moving tuple.
      * @tparam E The type of the element to append to tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
      * @param t The tuple to have an element appended to.
      * @param element The element to append to the tuple.
      * @return The resulting tuple.
      */
-    template <typename E, size_t ...I, typename ...T>
-    SUPERTUPLE_CUDA_ENABLED inline constexpr decltype(auto) append(
-        tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
+    template <typename E, id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) append(
+        detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
       , E&& element
     ) {
         return tuple_t<T..., E>(
-            operation::get<I>(std::forward<decltype(t)>(t))...
-          , std::forward<decltype(element)>(element)
+            get<I>(std::forward<decltype(t)>(t))...
+          , std::forward<E>(element)
         );
     }
 }

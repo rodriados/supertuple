@@ -11,226 +11,157 @@
 
 #include <supertuple/environment.h>
 
-#include <supertuple/detail/leaf.hpp>
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 #include <supertuple/operation/set.hpp>
-
-SUPERTUPLE_DISABLE_NVCC_WARNING_BEGIN(20012)
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
 /**
  * A tuple represents an indexable sequential list of elements of possibly different
  * types. In comparision with a plain struct containing elements of similar types,
- * the tuple must require the same amount of memory and its elements cannot be accessed
- * by field names but offset.
- * @tparam T The tuple's sequence of element types.
+ * the tuple must almost always require the same amount of memory and its elements
+ * cannot be accessed by field names but offset. Differently from plain structs,
+ * a tuple will not allocate memory for elements of empty types.
+ * @tparam T The sequence of tuple element types.
  * @since 1.0
  */
 template <typename ...T>
-class tuple_t : public tuple_t<detail::identity_t<std::make_index_sequence<sizeof...(T)>>, T...>
+class tuple_t : public detail::tuple_t<detail::make_id_sequence_t<sizeof...(T)>, T...>
 {
     public:
-        static constexpr size_t count = sizeof...(T);
+        SUPERTUPLE_CONSTEXPR static size_t count = sizeof...(T);
 
     private:
-        typedef detail::identity_t<std::make_index_sequence<count>> identity_t;
-        typedef tuple_t<identity_t, T...> underlying_t;
+        typedef detail::make_id_sequence_t<count> identity_t;
+        typedef detail::tuple_t<identity_t, T...> super_t;
 
     public:
         using base_tuple_t = tuple_t;
 
     public:
-      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
-        using underlying_t::tuple_t;
-      #else
-        using underlying_t::underlying_t;
-      #endif
-        using underlying_t::operator=;
-};
-
-namespace detail
-{
-    /**
-     * Accesses the internal declared type of a tuple leaf.
-     * @tparam I The index of the leaf to be accessed in the tuple.
-     * @tparam T The extracted tuple element type.
-     */
-    template <size_t I, typename T>
-    SUPERTUPLE_CONSTEXPR auto access(leaf_t<I, T>) noexcept
-    -> leaf_t<I, T>;
-
-    /**
-     * Creates a tuple with repeated types.
-     * @tparam T The type to be repeated as tuple elements.
-     * @tparam I The tuple's type index sequence.
-     */
-    template <typename T, size_t ...I>
-    SUPERTUPLE_CONSTEXPR auto repeater(std::index_sequence<I...>) noexcept
-    -> tuple_t<typename identity_t<T, I>::type...>;
-}
-
-/**
- * The base tuple type.
- * @tparam I The sequence indeces for the tuple elements' types.
- * @tparam T The list of tuple elements' types.
- * @since 1.0
- */
-template <size_t ...I, typename ...T>
-class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
-  : public detail::leaf_t<I, T>...
-{
-    private:
-        typedef detail::identity_t<std::index_sequence<I...>> identity_t;
-
-    public:
         /**
-         * Provides typed access to an element within the tuple.
-         * @tparam J The requested element index.
+         * Typed accessor to an element within the tuple.
+         * @tparam I The requested element node index.
          * @since 1.0
          */
-        template <size_t J>
-        using accessor_t = decltype(detail::access<J>(std::declval<tuple_t>()))&;
+        template <id_t I>
+        using accessor_t = decltype(detail::access<I>(std::declval<tuple_t>()))&;
 
         /**
-         * Retrieves the type of a specific tuple element by its index.
-         * @tparam J The requested element index.
+         * The type of a specific indexed tuple element within the tuple.
+         * @tparam I The requested element index.
          * @since 1.0
          */
-        template <size_t J>
-        using element_t = typename std::remove_reference_t<accessor_t<J>>::element_t;
+        template <id_t I>
+        using element_t = typename std::remove_reference_t<accessor_t<I>>::element_t;
 
     public:
         SUPERTUPLE_CONSTEXPR tuple_t() = default;
         SUPERTUPLE_CONSTEXPR tuple_t(const tuple_t&) = default;
         SUPERTUPLE_CONSTEXPR tuple_t(tuple_t&&) = default;
 
-        /**
-         * Creates a new tuple instance from a list of foreign values.
-         * @tparam U The foreign values' types to build the tuple from.
-         * @param value The list of foreign values to create the tuple with.
-         */
-        template <
-            typename ...U
-          , typename = std::enable_if_t<sizeof...(U) == sizeof...(T)>>
-        SUPERTUPLE_CONSTEXPR tuple_t(U&&... value)
-          : detail::leaf_t<I, T> (std::forward<decltype(value)>(value))...
-        {}
-
-        /**
-         * Creates a new tuple instance from a tuple of foreign types.
-         * @tparam U The types of foreign tuple instance to copy from.
-         * @param other The foreign tuple which values must be copied from.
-         */
-        template <typename ...U>
-        SUPERTUPLE_CONSTEXPR tuple_t(const tuple_t<identity_t, U...>& other)
-          : detail::leaf_t<I, T> (static_cast<const detail::leaf_t<I, U>&>(other))...
-        {}
-
-        /**
-         * Creates a new tuple instance by moving a tuple of foreign types.
-         * @tparam U The types of foreign tuple instance to move from.
-         * @param other The foreign tuple which values must be moved from.
-         */
-        template <typename ...U>
-        SUPERTUPLE_CONSTEXPR tuple_t(tuple_t<identity_t, U...>&& other)
-          : detail::leaf_t<I, T> (std::forward<detail::leaf_t<I, U>>(other))...
-        {}
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
+        using super_t::super_t;
+      #else
+        using super_t::tuple_t;
+      #endif
 
         SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t&) = default;
         SUPERTUPLE_INLINE tuple_t& operator=(tuple_t&&) = default;
 
+        using super_t::operator=;
+
         /**
-         * Copies the values from a foreign tuple instance.
-         * @tparam U The types of foreign tuple instance to copy from.
-         * @param other The tuple the values must be copied from.
-         * @return The current tuple instance.
+         * Retrieve the value of a tuple element by its index.
+         * @tparam I The requested element index.
+         * @return The tuple element value.
          */
-        template <typename ...U>
-        SUPERTUPLE_INLINE tuple_t& operator=(const tuple_t<identity_t, U...>& other)
+        template <id_t I>
+        SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get() noexcept
         {
-            return r1(*this, accessor_t<I>(*this) = ((const detail::leaf_t<I, U>&) other)...);
+            return operation::get<I>(*this);
         }
 
         /**
-         * Moves the values from a foreign tuple instance.
-         * @tparam U The types of the foreign tuple instance to move from.
-         * @param other The tuple the values must be moved from.
-         * @return The current tuple instance.
-         */
-        template <typename ...U>
-        SUPERTUPLE_INLINE tuple_t& operator=(tuple_t<identity_t, U...>&& other)
-        {
-            return r1(*this, accessor_t<I>(*this) = std::forward<detail::leaf_t<I, U>>(other)...);
-        }
-
-        /**
-         * Retrieves the value of a tuple member by its index.
-         * @tparam J The requested member's index.
-         * @return The member's value.
-         */
-        template <size_t J>
-        SUPERTUPLE_CONSTEXPR auto get() noexcept -> decltype(auto)
-        {
-            return operation::get<J>(*this);
-        }
-
-        /**
-         * Retrieves the value of a tuple member by its unique type.
-         * @tparam U The requested member's type.
-         * @return The member's value.
+         * Retrieve the value of a tuple element by its unique type.
+         * @tparam U The requested element type.
+         * @return The tuple element value.
          */
         template <typename U>
-        SUPERTUPLE_CONSTEXPR auto get() noexcept -> decltype(auto)
+        SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get() noexcept
         {
             return operation::get<U>(*this);
         }
 
         /**
-         * Retrieves the value of a const-qualified tuple member by its index.
-         * @tparam J The requested member's index.
-         * @return The const-qualified member's value.
+         * Retrieve the value of a const-qualified tuple element by its index.
+         * @tparam I The requested element index.
+         * @return The const-qualified tuple element value.
          */
-        template <size_t J>
-        SUPERTUPLE_CONSTEXPR auto get() const noexcept -> decltype(auto)
+        template <id_t I>
+        SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get() const noexcept
         {
-            return operation::get<J>(*this);
+            return operation::get<I>(*this);
         }
 
         /**
-         * Retrieves the value of a const-qualified tuple member by its unique type.
-         * @tparam U The requested member's type.
-         * @return The const-qualified member's value.
+         * Retrieve the value of a const-qualified tuple element by its unique type.
+         * @tparam U The requested element type.
+         * @return The const-qualified tuple element value.
          */
         template <typename U>
-        SUPERTUPLE_CONSTEXPR auto get() const noexcept -> decltype(auto)
+        SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) get() const noexcept
         {
             return operation::get<U>(*this);
         }
 
         /**
-         * Updates the value of a tuple member by its index.
-         * @tparam J The requested member's index.
-         * @tparam V The member's new value type.
+         * Update the value of a tuple element by its index.
+         * @tparam I The requested element index.
+         * @tparam V The tuple element new value type.
          */
-        template <size_t J, typename V>
-        SUPERTUPLE_INLINE void set(V&& value)
+        template <id_t I, typename V>
+        SUPERTUPLE_CUDA_INLINE void set(V&& value)
         {
-            operation::set<J>(*this, std::forward<decltype(value)>(value));
+            operation::set<I>(*this, std::forward<V>(value));
         }
 
         /**
-         * Updates the value of a tuple member by its unique type.
-         * @tparam U The requested member's unique type.
-         * @tparam V The member's new value type.
+         * Update the value of a tuple element by its unique type.
+         * @tparam U The requested element unique type.
+         * @tparam V The tuple element new value type.
          */
         template <typename U, typename V>
-        SUPERTUPLE_INLINE void set(V&& value)
+        SUPERTUPLE_CUDA_INLINE void set(V&& value)
         {
-            operation::set<U>(*this, std::forward<decltype(value)>(value));
+            operation::set<U>(*this, std::forward<V>(value));
+        }
+
+        /**
+         * Swaps elements with a foreign tuple.
+         * @tparam U The foreign tuple element types.
+         * @param other The tuple to swap elements with.
+         */
+        template <typename U>
+        SUPERTUPLE_CUDA_INLINE void swap(tuple_t<U>& other)
+        {
+            detail::swap(*this, other);
         }
 };
+
+namespace detail
+{
+    /**
+     * Creates a tuple of repeated types.
+     * @tparam T The type to be repeated as tuple elements.
+     * @tparam I The tuple type index sequence.
+     */
+    template <typename T, id_t ...I>
+    SUPERTUPLE_CUDA_CONSTEXPR auto repeater(id_sequence_t<I...>) noexcept
+    -> supertuple::tuple_t<typename identity_t<T, I>::type...>;
+}
 
 /**
  * The type of an element in a tuple.
@@ -238,7 +169,7 @@ class tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>
  * @tparam I The index of tuple element.
  * @since 1.0
  */
-template <typename T, size_t I>
+template <typename T, id_t I>
 using tuple_element_t = typename T::template element_t<I>;
 
 /*
@@ -248,81 +179,81 @@ using tuple_element_t = typename T::template element_t<I>;
 template <typename ...T> tuple_t(T...) -> tuple_t<T...>;
 
 /**
- * A tuple containing all elements of a single type can have its representation
+ * A tuple containing all elements of a single type can have its type representation
  * simplified by a N-tuple, which works in similar ways to an array, but with compile-time
  * size delimitation and validations.
- * @tparam T The tuple's elements' type.
+ * @tparam T The tuple elements type.
  * @tparam N The number of elements in the tuple.
  * @since 1.0
  */
-template <typename T, size_t N>
-class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>()))
+template <typename T, id_t N>
+class ntuple_t : public decltype(detail::repeater<T>(detail::make_id_sequence_t<N>()))
 {
     private:
-        typedef std::make_index_sequence<N> indexer_t;
-        typedef decltype(detail::repeater<T>(indexer_t())) underlying_t;
+        typedef detail::make_id_sequence_t<N> identity_t;
+        typedef decltype(detail::repeater<T>(identity_t())) super_t;
 
     public:
-        SUPERTUPLE_CONSTEXPR ntuple_t() noexcept = default;
+        SUPERTUPLE_CONSTEXPR ntuple_t() = default;
         SUPERTUPLE_CONSTEXPR ntuple_t(const ntuple_t&) = default;
         SUPERTUPLE_CONSTEXPR ntuple_t(ntuple_t&&) = default;
 
         /**
-         * Creates a new tuple from a raw foreign array.
-         * @tparam U The foreign array's type to create tuple from.
-         * @param array The array to initialize the tuple's values from.
+         * Construct a new n-tuple from a raw foreign array.
+         * @tparam U The foreign array type to create n-tuple from.
+         * @param array The array to copy the n-tuple elements from.
          */
         template <
             typename U
           , typename = std::enable_if_t<
                 std::is_pointer_v<std::remove_reference_t<U>> ||
                 std::is_array_v<std::remove_reference_t<U>>>>
-        SUPERTUPLE_CONSTEXPR ntuple_t(U&& array)
-          : ntuple_t (indexer_t(), array)
+        SUPERTUPLE_CUDA_CONSTEXPR ntuple_t(U&& array)
+          : ntuple_t (array, identity_t())
         {}
 
         /**
-         * Creates a new tuple by moving a raw foreign array.
-         * @tparam U The foreign array's type to create tuple from.
-         * @param array The array to move into the tuple's values.
+         * Construct a new n-tuple by moving a raw foreign array.
+         * @tparam U The foreign array type to create n-tuple from.
+         * @param array The array to move into the n-tuple elements.
          */
         template <typename U>
-        SUPERTUPLE_CONSTEXPR ntuple_t(U (&&array)[N])
-          : ntuple_t (indexer_t(), std::forward<decltype(array)>(array))
+        SUPERTUPLE_CUDA_CONSTEXPR ntuple_t(U (&&array)[N])
+          : ntuple_t (std::forward<decltype(array)>(array), identity_t())
         {}
 
-      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
-        using underlying_t::tuple_t;
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
+        using super_t::super_t;
       #else
-        using underlying_t::underlying_t;
+        using super_t::tuple_t;
       #endif
 
         SUPERTUPLE_INLINE ntuple_t& operator=(const ntuple_t&) = default;
         SUPERTUPLE_INLINE ntuple_t& operator=(ntuple_t&&) = default;
 
-        using underlying_t::operator=;
+        using super_t::operator=;
 
     private:
         /**
-         * Creates a new tuple by inlining an array.
-         * @tparam U The foreign array type to create tuple from.
-         * @tparam I The tuple's sequence index for inlining the array.
+         * Construct a new n-tuple by inlining an array.
+         * @tparam U The foreign array type to create n-tuple from.
+         * @tparam I The n-tuple sequence index for inlining the array.
          * @param array The array to inline.
          */
-        template <typename U, size_t ...I>
-        SUPERTUPLE_CONSTEXPR ntuple_t(std::index_sequence<I...>, U&& array)
-          : underlying_t (array[I]...)
+        template <typename U, id_t ...I>
+        SUPERTUPLE_CUDA_CONSTEXPR ntuple_t(U&& array, detail::id_sequence_t<I...>)
+          : super_t (array[I]...)
         {}
 
         /**
-         * Creates a new tuple by moving the contents of an array.
-         * @tparam U The foreign array type to create tuple from.
-         * @tparam I The tuple's sequence index for inlining the array.
+         * Construct a new n-tuple by moving the contents of an array.
+         * @tparam U The foreign array type to create n-tuple from.
+         * @tparam I The n-tuple sequence index for inlining the array.
          * @param array The array to be moved.
          */
-        template <typename U, size_t ...I>
-        SUPERTUPLE_CONSTEXPR ntuple_t(std::index_sequence<I...>, U (&&array)[N])
-          : underlying_t (std::move(array[I])...)
+        template <typename U, id_t ...I>
+        SUPERTUPLE_CUDA_CONSTEXPR ntuple_t(U (&&array)[N], detail::id_sequence_t<I...>)
+          : super_t (std::move(array[I])...)
         {}
 };
 
@@ -330,14 +261,14 @@ class ntuple_t : public decltype(detail::repeater<T>(std::make_index_sequence<N>
  * Deduction guides for n-tuple types.
  * @since 1.0
  */
-template <typename T, size_t N> ntuple_t(const T(&)[N]) -> ntuple_t<T, N>;
-template <typename T, size_t N> ntuple_t(T(&&)[N]) -> ntuple_t<T, N>;
+template <typename T, id_t N> ntuple_t(const T(&)[N]) -> ntuple_t<T, N>;
+template <typename T, id_t N> ntuple_t(T(&&)[N]) -> ntuple_t<T, N>;
 template <typename ...T> ntuple_t(const T&...) -> ntuple_t<std::common_type_t<T...>, sizeof...(T)>;
 template <typename ...T> ntuple_t(T&&...) -> ntuple_t<std::common_type_t<T...>, sizeof...(T)>;
 
 /**
- * The tuple composed of exactly two elements is a pair. In a pair, each
- * of the elements can be more easily accessed by aliased methods.
+ * The tuple composed of exactly two elements is a pair. In a pair, each one of the
+ * elements can be more easily accessed by aliased methods.
  * @tparam T The first element's type.
  * @tparam U The second element's type.
  * @since 1.0
@@ -346,38 +277,56 @@ template <typename T, typename U>
 class pair_t : public tuple_t<T, U>
 {
     private:
-        typedef tuple_t<T, U> underlying_t;
+        typedef tuple_t<T, U> super_t;
 
     public:
         SUPERTUPLE_CONSTEXPR pair_t() noexcept = default;
         SUPERTUPLE_CONSTEXPR pair_t(const pair_t&) = default;
         SUPERTUPLE_CONSTEXPR pair_t(pair_t&&) = default;
 
-      #if SUPERTUPLE_COMPILER == SUPERTUPLE_OPT_COMPILER_NVCC
-        using underlying_t::tuple_t;
+      #if SUPERTUPLE_COMPILER != SUPERTUPLE_OPT_COMPILER_NVCC
+        using super_t::super_t;
       #else
-        using underlying_t::underlying_t;
+        using super_t::tuple_t;
       #endif
 
         SUPERTUPLE_INLINE pair_t& operator=(const pair_t&) = default;
         SUPERTUPLE_INLINE pair_t& operator=(pair_t&&) = default;
 
-        using underlying_t::operator=;
+        using super_t::operator=;
 
         /**
-         * Retrieves the first element of the pair.
-         * @return The pair's first element's reference.
+         * Retrieve the first element of the pair.
+         * @return The pair first element reference.
          */
-        SUPERTUPLE_CONSTEXPR auto first() const noexcept -> const T&
+        SUPERTUPLE_CUDA_CONSTEXPR T& first() noexcept
         {
             return operation::get<0>(*this);
         }
 
         /**
-         * Retrieves the second element of the pair.
-         * @return The pair's second element's reference.
+         * Retrieve the const-qualified first element of the pair.
+         * @return The pair first element const-qualified reference.
          */
-        SUPERTUPLE_CONSTEXPR auto second() const noexcept -> const U&
+        SUPERTUPLE_CUDA_CONSTEXPR const T& first() const noexcept
+        {
+            return operation::get<0>(*this);
+        }
+
+        /**
+         * Retrieve the second element of the pair.
+         * @return The pair second element reference.
+         */
+        SUPERTUPLE_CUDA_CONSTEXPR U& second() noexcept
+        {
+            return operation::get<1>(*this);
+        }
+
+        /**
+         * Retrieve the const-qualified second element of the pair.
+         * @return The pair second element const-qualified reference.
+         */
+        SUPERTUPLE_CUDA_CONSTEXPR const U& second() const noexcept
         {
             return operation::get<1>(*this);
         }
@@ -390,54 +339,56 @@ class pair_t : public tuple_t<T, U>
 template <typename T, typename U> pair_t(T, U) -> pair_t<T, U>;
 
 /**
- * Compares two tuples by checking whether their elements are equal.
- * @tparam I The tuples' sequence indeces.
- * @tparam T The first tuple's element members types.
- * @tparam U The second tuple's element members types.
+ * Compare two tuples by checking whether their elements are equal.
+ * @tparam I The tuples index sequence.
+ * @tparam T The first tuple elements types.
+ * @tparam U The second tuple elements types.
  * @param a The first tuple to be compared.
  * @param b The second tuple to be compared.
  * @return Are the two tuples considered equal?
  */
 template <
-    size_t ...I, typename ...T, typename ...U
+    id_t ...I
+  , typename ...T
+  , typename ...U
   , typename = std::void_t<decltype(std::declval<T>() == std::declval<U>())...>>
-SUPERTUPLE_CONSTEXPR bool operator==(
-    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
-  , const tuple_t<detail::identity_t<std::index_sequence<I...>>, U...>& b
+SUPERTUPLE_CUDA_CONSTEXPR bool operator==(
+    const detail::tuple_t<detail::id_sequence_t<I...>, T...>& a
+  , const detail::tuple_t<detail::id_sequence_t<I...>, U...>& b
 ) noexcept {
     return ((operation::get<I>(a) == operation::get<I>(b)) && ...);
 }
 
 /**
- * Compares two tuples of different length or uncomparable element types.
- * @tparam I The first tuple's sequence indeces.
- * @tparam J The second tuple's sequence indeces.
- * @tparam T The first tuple's element members types.
- * @tparam U The second tuple's element members types.
+ * Compare two tuples of different length or uncomparable element types.
+ * @tparam I The first tuple index sequence.
+ * @tparam J The second tuple index sequence.
+ * @tparam T The first tuple elements types.
+ * @tparam U The second tuple elements types.
  * @return The tuples cannot possibly be equal.
  */
-template <size_t ...I, size_t ...J, typename ...T, typename ...U>
-SUPERTUPLE_CONSTEXPR bool operator==(
-    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&
-  , const tuple_t<detail::identity_t<std::index_sequence<J...>>, U...>&
+template <id_t ...I, id_t ...J, typename ...T, typename ...U>
+SUPERTUPLE_CUDA_CONSTEXPR bool operator==(
+    const detail::tuple_t<detail::id_sequence_t<I...>, T...>&
+  , const detail::tuple_t<detail::id_sequence_t<J...>, U...>&
 ) noexcept {
     return false;
 }
 
 /**
- * Compares two tuples by checking whether any of their elements are different.
- * @tparam I The first tuple's sequence indeces.
- * @tparam J The second tuple's sequence indeces.
- * @tparam T The first tuple's element members types.
- * @tparam U The second tuple's element members types.
+ * Compare two tuples by checking whether any of their elements are different.
+ * @tparam I The first tuple index sequence.
+ * @tparam J The second tuple index sequence.
+ * @tparam T The first tuple elements types.
+ * @tparam U The second tuple elements types.
  * @param a The first tuple to be compared.
  * @param b The second tuple to be compared.
  * @return Are the two tuples considered different?
  */
-template <size_t ...I, size_t ...J, typename ...T, typename ...U>
-SUPERTUPLE_CONSTEXPR bool operator!=(
-    const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& a
-  , const tuple_t<detail::identity_t<std::index_sequence<J...>>, U...>& b
+template <id_t ...I, id_t ...J, typename ...T, typename ...U>
+SUPERTUPLE_CUDA_CONSTEXPR bool operator!=(
+    const detail::tuple_t<detail::id_sequence_t<I...>, T...>& a
+  , const detail::tuple_t<detail::id_sequence_t<J...>, U...>& b
 ) noexcept {
     return !operator==(a, b);
 }
@@ -445,8 +396,8 @@ SUPERTUPLE_CONSTEXPR bool operator!=(
 SUPERTUPLE_END_NAMESPACE
 
 /**
- * Informs the size of a generic tuple, allowing it to be deconstructed.
- * @tparam T The tuple's elements' types.
+ * Inform the size of a generic tuple, allowing it to be deconstructed.
+ * @tparam T The tuple elements types.
  * @since 1.0
  */
 template <typename ...T>
@@ -454,9 +405,9 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::tuple_t<T...>>
   : std::integral_constant<size_t, SUPERTUPLE_NAMESPACE::tuple_t<T...>::count> {};
 
 /**
- * Retrieves the deconstruction type of a tuple's element.
+ * Retrieve the type of a tuple element.
  * @tparam I The index of the requested tuple element.
- * @tparam T The tuple's elements' types.
+ * @tparam T The tuple elements types.
  * @since 1.0
  */
 template <size_t I, typename ...T>
@@ -465,8 +416,8 @@ struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::tuple_t<T...>>
         typename SUPERTUPLE_NAMESPACE::tuple_t<T...>::template element_t<I>> {};
 
 /**
- * Informs the size of a generic n-tuple, allowing it to be deconstructed.
- * @tparam T The n-tuple's elements' type.
+ * Inform the size of a generic n-tuple, allowing it to be deconstructed.
+ * @tparam T The n-tuple elements type.
  * @tparam N The total number of elements in the n-tuple.
  * @since 1.0
  */
@@ -475,9 +426,9 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::ntuple_t<T, N>>
   : std::integral_constant<size_t, N> {};
 
 /**
- * Retrieves the deconstruction type of a n-tuple's element.
+ * Retrieve the type of a n-tuple element.
  * @tparam I The index of the requested tuple element.
- * @tparam T The n-tuple's elements' type.
+ * @tparam T The n-tuple elements type.
  * @tparam N The total number of elements in the n-tuple.
  * @since 1.0
  */
@@ -487,9 +438,9 @@ struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::ntuple_t<T, N>>
         typename SUPERTUPLE_NAMESPACE::ntuple_t<T, N>::template element_t<I>> {};
 
 /**
- * Informs the size of a generic pair, allowing it to be deconstructed.
- * @tparam T The pair's first element type.
- * @tparam U The pair's second element type.
+ * Inform the size of a generic pair, allowing it to be deconstructed.
+ * @tparam T The pair first element type.
+ * @tparam U The pair second element type.
  * @since 1.0
  */
 template <typename T, typename U>
@@ -497,14 +448,12 @@ struct std::tuple_size<SUPERTUPLE_NAMESPACE::pair_t<T, U>>
   : std::tuple_size<SUPERTUPLE_NAMESPACE::tuple_t<T, U>> {};
 
 /**
- * Retrieves the deconstruction type of a pair's element.
+ * Retrieve the type of a pair element.
  * @tparam I The index of the requested pair element.
- * @tparam T The pair's first element type.
- * @tparam U The pair's second element type.
+ * @tparam T The pair first element type.
+ * @tparam U The pair second element type.
  * @since 1.0
  */
 template <size_t I, typename T, typename U>
 struct std::tuple_element<I, SUPERTUPLE_NAMESPACE::pair_t<T, U>>
   : std::tuple_element<I, SUPERTUPLE_NAMESPACE::tuple_t<T, U>> {};
-
-SUPERTUPLE_DISABLE_NVCC_WARNING_END(20012)

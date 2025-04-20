@@ -9,9 +9,9 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
+#include <supertuple/detail/tuple.hpp>
 #include <supertuple/operation/get.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
@@ -19,33 +19,33 @@ SUPERTUPLE_BEGIN_NAMESPACE
 inline namespace operation
 {
     /**
-     * Retrieves and returns the value of the last leaf of a tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
-     * @param t The tuple to get the last element from.
-     * @return The last value of tuple.
+     * Retrieve the last element of a tuple.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to get the last element of.
+     * @return The last element of the tuple.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) last(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) last(
+        const detail::tuple_t<detail::id_sequence_t<0, I...>, T...>& t
     ) noexcept {
         constexpr size_t J = sizeof...(T);
-        return operation::get<J - 1>(t);
+        return get<J-1>(t);
     }
 
     /**
-     * Retrieves and moves the value of the last leaf of a tuple.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
-     * @param t The tuple to get the last element from.
-     * @return The last value of tuple.
+     * Retrieve the last element of a moving tuple.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to get the last element of.
+     * @return The last element of the tuple.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) last(
-        tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) last(
+        detail::tuple_t<detail::id_sequence_t<0, I...>, T...>&& t
     ) noexcept {
         constexpr size_t J = sizeof...(T);
-        return operation::get<J - 1>(std::forward<decltype(t)>(t));
+        return get<J-1>(std::forward<decltype(t)>(t));
     }
 }
 

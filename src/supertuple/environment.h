@@ -188,10 +188,10 @@
  * the use of these annotations without needing to care whether they'll be known
  * by the compiler or not.
  */
-#ifdef __CUDACC__
-  #define SUPERTUPLE_CUDA_ENABLED __host__ __device__
-#else
-  #define SUPERTUPLE_CUDA_ENABLED
+#if !defined(__CUDACC__)
+  #define __host__
+  #define __device__
+  #define __forceinline__
 #endif
 
 /*
@@ -199,8 +199,11 @@
  * minimum required language version is C++17, we assume it is guaranteed that all
  * compilers will have `inline` and `constexpr` implemented.
  */
-#define SUPERTUPLE_INLINE SUPERTUPLE_CUDA_ENABLED inline
+#define SUPERTUPLE_INLINE inline
 #define SUPERTUPLE_CONSTEXPR SUPERTUPLE_INLINE constexpr
+#define SUPERTUPLE_CUDA_ENABLED __host__ __device__
+#define SUPERTUPLE_CUDA_INLINE SUPERTUPLE_CUDA_ENABLED SUPERTUPLE_INLINE
+#define SUPERTUPLE_CUDA_CONSTEXPR SUPERTUPLE_CUDA_ENABLED SUPERTUPLE_CONSTEXPR
 
 /**
  * Defines the namespace in which the library lives. This might be overriden if

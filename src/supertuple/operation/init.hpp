@@ -9,44 +9,43 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
-#include <supertuple/operation/get.hpp>
+#include <supertuple/detail/tuple.hpp>
+#include <supertuple/operation/select.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
 inline namespace operation
 {
     /**
-     * Returns a tuple with its last leaf removed.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
-     * @param t The tuple to have its last element removed.
-     * @return The new tuple with removed end.
+     * Return tuple with its last element removed.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to remove last element from.
+     * @return The new tuple with last element removed.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) init(
-        const tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) init(
+        const detail::tuple_t<detail::id_sequence_t<0, I...>, T...>& t
     ) {
-        return tuple_t<tuple_element_t<tuple_t<T...>, I-1>...>(
-            operation::get<I-1>(t)...
-        );
+        return select(t, detail::id_sequence_t<(I-1)...>());
     }
 
     /**
-     * Moves a tuple with its last leaf removed.
-     * @tparam I The tuple sequence indeces to match from tuple.
-     * @tparam T The list of tuple's element members types.
-     * @param t The tuple to have its last element removed.
-     * @return The new tuple with removed end.
+     * Return moving tuple with its last element removed.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to remove last element from.
+     * @return The new tuple with last element removed.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) init(
-        tuple_t<detail::identity_t<std::index_sequence<0, I...>>, T...>&& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) init(
+        detail::tuple_t<detail::id_sequence_t<0, I...>, T...>&& t
     ) {
-        return tuple_t<tuple_element_t<tuple_t<T...>, I-1>...>(
-            operation::get<I-1>(std::forward<decltype(t)>(t))...
+        return select(
+            std::forward<decltype(t)>(t)
+          , detail::id_sequence_t<(I-1)...>()
         );
     }
 }

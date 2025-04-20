@@ -9,46 +9,43 @@
 #include <utility>
 
 #include <supertuple/environment.h>
-#include <supertuple/tuple.hpp>
 
 #include <supertuple/detail/utility.hpp>
-#include <supertuple/operation/get.hpp>
+#include <supertuple/detail/tuple.hpp>
+#include <supertuple/operation/select.hpp>
 
 SUPERTUPLE_BEGIN_NAMESPACE
 
 inline namespace operation
 {
     /**
-     * Reverses a tuple.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
-     * @param t The tuple to be reversed.
+     * Reverse the order of the elements of a tuple.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to reverse.
      * @return The reversed tuple.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) reverse(
-        const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) reverse(
+        const detail::tuple_t<detail::id_sequence_t<I...>, T...>& t
     ) {
-        constexpr size_t J = sizeof...(T);
-        return tuple_t<tuple_element_t<tuple_t<T...>, J-I-1>...>(
-            operation::get<J-I-1>(t)...
-        );
+        return select(t, detail::id_reverse_sequence_t<I...>());
     }
 
     /**
-     * Moves a tuple into its reversed counter-part.
-     * @tparam I The tuple sequence indeces.
-     * @tparam T The tuple's element members types.
-     * @param t The tuple to be reversed.
+     * Reverse the order of the elements of a moving tuple.
+     * @tparam I The tuple index sequence.
+     * @tparam T The tuple element types.
+     * @param t The tuple to reverse.
      * @return The reversed tuple.
      */
-    template <size_t ...I, typename ...T>
-    SUPERTUPLE_CONSTEXPR decltype(auto) reverse(
-        tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>&& t
+    template <id_t ...I, typename ...T>
+    SUPERTUPLE_CUDA_CONSTEXPR decltype(auto) reverse(
+        detail::tuple_t<detail::id_sequence_t<I...>, T...>&& t
     ) {
-        constexpr size_t J = sizeof...(T);
-        return tuple_t<tuple_element_t<tuple_t<T...>, J-I-1>...>(
-            operation::get<J-I-1>(std::forward<decltype(t)>(t))...
+        return select(
+            std::forward<decltype(t)>(t)
+          , detail::id_reverse_sequence_t<I...>()
         );
     }
 }
