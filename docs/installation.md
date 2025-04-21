@@ -10,8 +10,6 @@ SuperTuple is a header-only C++17 library, making it easy to integrate into your
 
 ```cpp
 #include "supertuple.h"
-// or
-#include <supertuple.h>
 ```
 
 ## Option 2: CMake Integration (Recommended for Larger Projects)
@@ -26,12 +24,12 @@ Add the following to your `CMakeLists.txt`:
 include(FetchContent)
 
 FetchContent_Declare(
-  supertuple
+  SuperTuple
   GIT_REPOSITORY https://github.com/rodriados/supertuple.git
-  GIT_TAG v1.1.2  # Use the latest version
+  GIT_TAG latest
 )
 
-FetchContent_MakeAvailable(supertuple)
+FetchContent_MakeAvailable(SuperTuple)
 ```
 
 Then link it to your target:
@@ -61,7 +59,7 @@ target_link_libraries(your_target PRIVATE SuperTuple::SuperTuple)
 
 ## Requirements
 
-- C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
+- C++17 compatible compiler (GCC 7+, Clang 5+)
 - CMake 3.24+ (for CMake integration)
 
 ## Testing the Installation

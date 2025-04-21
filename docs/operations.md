@@ -68,4 +68,3 @@ For converting between SuperTuple and standard C++ tuples, see:
 - **[Tuple Types](tuples.md)** — Understanding tuple types
 - **[Usage Guide](usage.md)** — Getting started
 - **[Performance Guide](performance.md)** — Complexity and optimization
-- **[FAQ](faq.md)** — Common questions

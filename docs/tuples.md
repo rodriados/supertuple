@@ -6,13 +6,13 @@ This guide provides in-depth coverage of SuperTuple's tuple types and how to cho
 
 SuperTuple provides three main tuple type abstractions:
 
-### 1. `tuple_t<T...>` - Heterogeneous Tuples
+### 1. `tuple_t<T...>` — Heterogeneous Tuples
 
 A general-purpose tuple that can hold elements of different types.
 
 ```cpp
 auto mixed = st::tuple_t(1, 3.14, "hello", true);
-// Type: tuple_t<int, double, const char*, bool>
+// tuple_t<int, double, const char*, bool>
 ```
 
 **Characteristics:**
@@ -32,33 +32,29 @@ auto mixed = st::tuple_t(1, 3.14, "hello", true);
 ```cpp
 static constexpr size_t count;  // Number of elements
 
-T& get<0>();                   // Access by index
-T& get<typename>();            // Access by unique type
-
-void set<0>(value);             // Modify by index
-void set<typename>(value);      // Modify by type
+T& get<int>();                  // Access by index
+T& get<T>();                    // Access by unique type
+void set<int>(value);           // Modify by index
+void set<T>(value);             // Modify by unique type
 ```
 
 **Example:**
 ```cpp
-auto config = st::tuple_t(
-    "app_name",
-    std::chrono::system_clock::now(),
-    8080,
-    true
-);
+auto config = st::tuple_t("app_name", 8080, true);
 
 auto app_name = st::get<0>(config);  // By index
 auto port = st::get<int>(config);    // By type (unique)
 ```
 
-### 2. `ntuple_t<T, N>` - Homogeneous Tuples
+---
+
+### 2. `ntuple_t<T, N>` — Homogeneous Tuples
 
 A tuple containing exactly `N` elements of the same type `T`. Useful for fixed-size numeric collections.
 
 ```cpp
-auto point_3d = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
-// Type: ntuple_t<double, 3>
+auto point_3d = st::ntuple_t(1.0, 2.0, 3.0);
+// ntuple_t<double, 3>
 ```
 
 **Characteristics:**
@@ -78,35 +74,30 @@ auto point_3d = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
 ```cpp
 static constexpr size_t count;  // Always equals N
 
-T& get<0>();                   // Access by index (same as array)
-
-void set<0>(value);             // Modify by index
+T& get<int>();                  // Access by index (same as array)
+void set<int>(value);           // Modify by index
 ```
 
 **Example:**
 ```cpp
 namespace st = supertuple;
 
-// 2D point
-auto point_2d = st::ntuple_t<double, 2>(3.0, 4.0);
+auto point_2d = st::ntuple_t(3.0, 4.0);
+auto point_3d = st::ntuple_t(1.0, 2.0, 3.0);
+auto point_9d = st::ntuple_t(...9 values...);
 
-// 3D point
-auto point_3d = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
-
-// Higher dimensions
-auto high_dim = st::ntuple_t<double, 10>(...10 values...);
-
-// Vector operations are natural
 auto scaled = st::apply(point_2d, [](auto x) { return x * 2.0; });
 ```
 
-### 3. `pair_t<T, U>` - Binary Tuples
+---
+
+### 3. `pair_t<T, U>` — Binary Tuples
 
 A specialized tuple containing exactly two elements of types `T` and `U`. Often used as the pairing result from `zip` operations.
 
 ```cpp
 auto coord = st::pair_t(42, 3.14);
-// Type: pair_t<int, double>
+// pair_t<int, double>
 ```
 
 **Characteristics:**
@@ -126,65 +117,19 @@ auto coord = st::pair_t(42, 3.14);
 ```cpp
 static constexpr size_t count = 2;
 
-// Standard tuple access
-T& get<0>();
-U& get<1>();
-
-T& get<T>();  // First element type
-U& get<U>();  // Second element type
+T& get<int>();
+T& get<T>();            // First element type
+U& get<U>();            // Second element type
+void set<int>(value);
+void set<T>(value);     // First element type
+void set<U>(value);     // Second element type
 ```
 
 **Example:**
 ```cpp
-// From zip operation
-auto a = st::tuple_t(1, 2, 3);
-auto b = st::tuple_t(10, 20, 30);
-auto zipped = st::zip(a, b);
-// Result: tuple_t<pair_t<int,int>, pair_t<int,int>, pair_t<int,int>>
-
-// Manual pair creation
 auto coord = st::pair_t(42, 3.14);
-auto x = st::get<0>(coord);
-auto y = st::get<1>(coord);
+auto [x, y] = coord;
 ```
-
----
-
-## Choosing the Right Tuple Type
-
-### Decision Matrix
-
-| Criteria | `tuple_t<T...>` | `ntuple_t<T, N>` | `pair_t<T, U>` |
-|----------|-----------------|------------------|----------------|
-| **Different element types** | ✓ Ideal | ✗ No | ✓ Yes (2 types) |
-| **Same element type** | ✓ Works | ✓ Ideal | ✓ Works |
-| **Number of elements fixed** | ✓ Yes | ✓ Yes (N) | ✓ Yes (2) |
-| **Many elements (5+)** | ✓ Good | ✓ Ideal | ✗ Limited |
-| **Vector/Point data** | ✗ Not ideal | ✓ Best | ✗ Only 2D |
-| **Type-safe uniqueness** | ✓ Per type | ✗ No | ✓ Per type |
-
-### Quick Guide
-
-**Use `tuple_t<T...>` when:**
-- Elements have different types
-- You need a lightweight struct-like container
-- Configuration or parameter bundles
-- Return multiple values of different types
-- You need type-unique access
-
-**Use `ntuple_t<T, N>` when:**
-- All elements are the same type
-- Working with vectors or points
-- Numerical/geometric computations
-- You want numeric collection semantics
-- Size is fixed and known at compile time
-
-**Use `pair_t<T, U>` when:**
-- Working with exactly 2 values
-- Result of a `zip` operation
-- Key-value pairs
-- Coordinates or binary measurements
-- You want semantic clarity ("pair" not "tuple")
 
 ---
 
@@ -202,7 +147,7 @@ auto config = st::tuple_t(42, "app", 3.14);
 auto [code, name, version] = config;
 
 // Homogeneous tuple
-auto point = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
+auto point = st::ntuple_t(1.0, 2.0, 3.0);
 auto [x, y, z] = point;
 
 // Pair
@@ -233,7 +178,7 @@ auto defaults = st::ntuple_t<int, 3>();  // (0, 0, 0)
 auto mixed = st::tuple_t(1, 2.5, "hello");
 
 // Homogeneous
-auto point = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
+auto point = st::ntuple_t(1.0, 2.0, 3.0);
 
 // Pair
 auto pair = st::pair_t(42, "value");
@@ -246,7 +191,7 @@ int x = 10, y = 20;
 auto refs = st::tie(x, y);  // References to x and y
 
 // Modifications through refs affect original variables
-st::get<0>(refs) = 100;
+st::set<0>(refs, 100);
 assert(x == 100);
 ```
 
@@ -265,15 +210,9 @@ Converting between tuple types:
 
 ```cpp
 // Via apply: ntuple_t to tuple_t with type change
-auto ints = st::ntuple_t<int, 3>(1, 2, 3);
-auto doubles = st::apply(ints, [](auto x) {
-    return (double)x;
-});  // tuple_t<double, double, double>
-
-// Via apply: change from one homogeneous to another
-auto as_float = st::apply(ints, [](auto x) {
-    return (float)x;
-});
+auto ints = st::ntuple_t(1, 2, 3);
+auto doubles = st::apply(ints, [](auto x) { return (double) x; });
+// tuple_t<double, double, double>
 ```
 
 ---
@@ -345,7 +284,7 @@ auto tuple = st::tuple_t(1, 2.5, "hello");
 ### Homogeneous Tuple Layout
 
 ```cpp
-auto point = st::ntuple_t<double, 3>(1.0, 2.0, 3.0);
+auto point = st::ntuple_t(1.0, 2.0, 3.0);
 // Conceptually: double[3] with functional operations
 // Contiguous memory block
 ```

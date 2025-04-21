@@ -77,7 +77,6 @@ Operations are organized into 5 functional categories:
 
 - **[Advanced Topics](advanced.md)** — Compile-time computing, CUDA support, template metaprogramming, composition patterns
 - **[Performance Guide](performance.md)** — Complexity analysis, optimization strategies, benchmarking
-- **[FAQ](faq.md)** — Common questions and answers
 
 ---
 

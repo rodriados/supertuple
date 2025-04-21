@@ -1,6 +1,7 @@
 # Contributing
 
-We welcome contributions to SuperTuple! This document provides guidelines for contributing to the project.
+We welcome contributions to SuperTuple! This document provides guidelines for contributing
+to the project.
 
 ## Development Setup
 
@@ -8,8 +9,6 @@ We welcome contributions to SuperTuple! This document provides guidelines for co
 
 - C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
 - CMake 3.24+
-- Python 3.6+ (for the header packing script)
-- Git
 
 ### Building from Source
 
@@ -56,15 +55,14 @@ This enables:
 
 ### Naming Conventions
 
-- Types: `PascalCase` (e.g., `tuple_t`, `leaf_t`)
-- Functions: `snake_case` (e.g., `foldl`, `zipwith`)
-- Template parameters: Single uppercase letters (e.g., `T`, `U`, `F`)
+- Use `snake_case` for types and functions: `tuple_t`, `to_std`
+- Template parameters: Single uppercase letters: `T`, `U`, `F`
 - Constants: `SCREAMING_SNAKE_CASE` with `SUPERTUPLE_` prefix
 
 ### Code Organization
 
 - Keep implementation in `.hpp` files in appropriate subdirectories
-- Use the `supertuple` namespace
+- Use the `supertuple` namespace only when needed
 - Group related functionality in operation subdirectories
 - Include necessary headers with full paths
 
@@ -85,7 +83,8 @@ ctest -V
 
 ### Writing Tests
 
-Tests use [Catch2](https://github.com/catchorg/Catch2) framework. Add tests in the `test/` directory:
+Tests use [Catch2](https://github.com/catchorg/Catch2) framework. Add tests in the
+`test/` directory:
 
 ```cpp
 #include <supertuple/api.h>
@@ -121,8 +120,7 @@ TEST_CASE("my new operation", "[operation]") {
 
 - Use Doxygen-style comments for public APIs
 - Document template parameters
-- Explain complex algorithms
-- Provide usage examples in comments
+- Add brief function descriptions
 
 ### Example
 
@@ -141,8 +139,7 @@ TEST_CASE("my new operation", "[operation]") {
 template <typename F, typename B, size_t ...I, typename ...T>
 SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
     const tuple_t<detail::identity_t<std::index_sequence<I...>>, T...>& t
-  , F&& lambda
-  , B&& base
+  , F&& lambda, B&& base
 );
 ```
 
@@ -170,13 +167,6 @@ SUPERTUPLE_CONSTEXPR decltype(auto) foldl(
 - Start with a verb (Add, Fix, Update, etc.)
 - Keep the first line under 50 characters
 - Provide additional context in the body if needed
-
-Examples:
-```
-Add zipwith operation for element-wise tuple combination
-Fix compile error in fold operations with empty tuples
-Update documentation for new API functions
-```
 
 ## Issue Reporting
 
@@ -225,7 +215,8 @@ supertuple/
 
 ## License
 
-By contributing to SuperTuple, you agree that your contributions will be licensed under the MIT License.
+By contributing to SuperTuple, you agree that your contributions will be licensed
+under the [MIT License](LICENSE).
 
 ## Getting Help
 

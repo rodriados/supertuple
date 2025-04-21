@@ -130,12 +130,10 @@ int main() {
 auto std_values = std::tuple(1.0, 2.0, 3.0);
 auto super = st::from_std(std_values);
 
+auto add = [](auto x, auto y) { return x + y; };
+
 // Sum using fold
-auto sum = st::foldl(
-    super,
-    [](auto acc, auto x) { return acc + x; },
-    0.0
-);  // 6.0
+auto sum = st::foldl(super, add, 0.0);  // 6.0
 
 // Transform
 auto doubled = st::apply(super, [](auto x) { return x * 2; });
@@ -176,13 +174,10 @@ Combine SuperTuple and standard library operations:
 
 ```cpp
 auto super = st::tuple_t(1, 2, 3, 4, 5);
+auto add = [](auto x, auto y) { return x + y; };
 
 // SuperTuple fold
-auto sum = st::foldl(
-    super,
-    [](auto acc, auto x) { return acc + x; },
-    0
-);
+auto sum = st::foldl(super, add, 0);
 
 // Standard library on converted tuple
 auto std_tuple = st::to_std(st::apply(super, [](auto x) { return x * 2; }));
@@ -218,61 +213,11 @@ auto a = st::tuple_t(1, 2);
 auto b = std::tuple(3.0, 4.0);
 
 // Convert and combine
-auto combined = st::concat(
-    a,
-    st::from_std(b)
-);  // type: tuple_t<int, int, double, double>
+auto combined = st::concat(a, st::from_std(b));
+// type: tuple_t<int, int, double, double>
 
 // Process combined result
-auto result = st::apply(combined, [](auto x) {
-    return (double)x;
-});
-```
-
----
-
-## Common Scenarios
-
-### Scenario 1: Using std::apply
-
-```cpp
-auto super = st::tuple_t(1, 2, 3);
-auto std_tuple = st::to_std(super);
-
-std::apply([](int a, int b, int c) {
-    std::cout << a + b + c << "\n";  // 6
-}, std_tuple);
-```
-
-### Scenario 2: Interfacing with std::make_tuple
-
-```cpp
-// Create with std::make_tuple
-auto std_tuple = std::make_tuple(1, "hello", 3.14);
-
-// Convert for SuperTuple operations
-auto super = st::from_std(std_tuple);
-auto transformed = st::apply(super, [](auto x) { return x; });
-```
-
-### Scenario 3: Working with Structured Bindings
-
-```cpp
-auto super = st::tuple_t(42, 3.14, "value");
-
-// Convert and use structured bindings
-auto [a, b, c] = st::to_std(super);
-std::cout << a << ", " << b << ", " << c << "\n";
-```
-
-### Scenario 4: Third-Party Library Integration
-
-```cpp
-// Suppose library expects std::tuple
-namespace lib = external_library;
-
-auto data = st::tuple_t(1.0, 2.0, 3.0);
-lib::process(st::to_std(data));
+auto result = st::apply(combined, [](auto x) { return (double) x; });
 ```
 
 ---
@@ -344,4 +289,3 @@ std::cout << typeid(std::get<2>(std_tuple)).name() << "\n";  // std::string
 - **[Tuple Types Guide](tuples.md)** — Understanding tuple type selection
 - **[API Reference](api.md)** — Complete API documentation
 - **[Usage Guide](usage.md)** — Getting started with SuperTuple
-- **Standard Tuple Documentation** — https://en.cppreference.com/w/cpp/utility/tuple

@@ -17,12 +17,7 @@ Create tuples using the `tuple_t` type:
 #include <supertuple/api.h>
 
 namespace st = supertuple;
-
-// Create a tuple with different types
-auto mixed_tuple = st::tuple_t(1, 2.5, "hello", true);
-
-// Create a tuple with repeated types
-auto int_tuple = st::ntuple_t<int, 3>(1, 2, 3);  // equivalent to tuple_t(1, 2, 3)
+auto tuple = st::tuple_t(1, 2.5, "hello", true);
 ```
 
 ### Accessing Elements
@@ -43,21 +38,18 @@ auto value = st::get<int>(tuple);  // Ambiguous if multiple ints!
 auto [a, b, c] = tuple;
 ```
 
-**See also:** [get operation](operations/get.md)
+**See also:** [get](operations/get.md)
 
 ### Modifying Elements
 
 ```cpp
 auto tuple = st::tuple_t(1, 2, 3);
 
-// Create new tuple (functional approach)
+// Create new tuple
 auto extended = st::append(tuple, 4);  // Results in (1, 2, 3, 4)
 
-// Modify in-place (mutable approach)
+// Modify in-place
 st::set<1>(tuple, 42);  // tuple is now (1, 42, 3)
-
-// Original tuple is unchanged (unless using set)
-assert(tuple == st::tuple_t(1, 2, 3));
 ```
 
 **See also:** [set](operations/set.md), [append](operations/append.md), [prepend](operations/prepend.md)
@@ -71,17 +63,20 @@ SuperTuple provides Haskell-inspired operations for working with tuples.
 Folding reduces a tuple to a single value:
 
 ```cpp
-auto numbers = st::tuple_t(1, 2, 3, 4);
+auto numbers = st::tuple_t(2, 3, 2);
+
+auto add = [](auto x, auto y) { return x + y; };
 
 // Left fold with initial value
-auto sum = st::foldl(numbers, [](auto acc, auto x) { return acc + x; }, 0);  // 10
+auto foldl = st::foldl(numbers, add, 1);    // 1 + 2 + 3 + 2 = 8
+auto scanl = st::scanl(numbers, add, 1);    // tuple_t(1, 3, 6, 8)
 
-// Left fold without initial value (uses first element as base)
-auto product = st::foldl(numbers, [](auto acc, auto x) { return acc * x; });  // 24
-
-// Right fold
-auto right_sum = st::foldr(numbers, [](auto x, auto acc) { return x + acc; }, 0);  // 10
+// Right fold without initial value
+auto foldr = st::foldr(numbers, std::pow);  // (2 ^ (3 ^ 2)) = 512
+auto scanr = st::scanr(numbers, std::pow);  // tuple_t(512, 9, 2)
 ```
+
+**See also:** [fold](operations/fold.md), [scan](operations/scan.md)
 
 ### Mapping Operations
 
@@ -90,12 +85,17 @@ Apply functions to elements:
 ```cpp
 auto numbers = st::tuple_t(1, 2, 3);
 
+auto add = [](auto x, auto y) { return x + y; };
+auto sqr = [](auto x) { return x * x; };
+
 // Apply a function to each element
-auto squared = st::apply(numbers, [](auto x) { return x * x; });  // tuple_t(1, 4, 9)
+auto squared = st::apply(numbers, sqr);     // (1, 4, 9)
 
 // Apply a binary function with a constant
-auto added = st::apply(numbers, [](auto x, auto y) { return x + y; }, 10);  // tuple_t(11, 12, 13)
+auto added = st::apply(numbers, add, 10);   // (11, 12, 13)
 ```
+
+**See also:** [apply](operations/apply.md)
 
 ### Zipping Operations
 
@@ -105,124 +105,69 @@ Combine tuples element-wise:
 auto a = st::tuple_t(1, 2, 3);
 auto b = st::tuple_t(4, 5, 6);
 
+auto add = [](auto x, auto y) { return x + y; };
+
 // Zip two tuples into a tuple of pairs
-auto zipped = st::zip(a, b);  // tuple_t(tuple_t(1,4), tuple_t(2,5), tuple_t(3,6))
+auto zipped = st::zip(a, b);            // ((1,4), (2,5), (3,6))
 
 // Zip with a function
-auto summed = st::zipwith(a, b, [](auto x, auto y) { return x + y; });  // tuple_t(5, 7, 9)
+auto summed = st::zipwith(a, b, add);   // (5, 7, 9)
 ```
 
+**See also:** [zip](operations/zip.md), [zipwith](operations/zipwith.md)
+
 ### List-like Operations
+Modify tuples like lists:
 
 ```cpp
 auto tuple = st::tuple_t(1, 2, 3, 4, 5);
 
 // Head and tail
-auto first = st::head(tuple);      // 1
-auto rest = st::tail(tuple);       // tuple_t(2, 3, 4, 5)
+auto head = st::head(tuple);            // 1
+auto tail = st::tail(tuple);            // (2, 3, 4, 5)
 
 // Last and init
-auto last_elem = st::last(tuple);  // 5
-auto all_but_last = st::init(tuple);  // tuple_t(1, 2, 3, 4)
+auto init = st::init(tuple);            // (1, 2, 3, 4)
+auto last = st::last(tuple);            // 5
 
 // Concatenation
 auto a = st::tuple_t(1, 2);
 auto b = st::tuple_t(3, 4);
-auto combined = st::concat(a, b);  // tuple_t(1, 2, 3, 4)
+auto concat = st::concat(a, b);         // (1, 2, 3, 4)
 
-// Appending/prepending single elements
-auto appended = st::append(tuple, 6);    // tuple_t(1, 2, 3, 4, 5, 6)
-auto prepended = st::prepend(tuple, 0);  // tuple_t(0, 1, 2, 3, 4, 5)
+// Append/prepend single elements
+auto append = st::append(tuple, 6);     // (1, 2, 3, 4, 5, 6)
+auto prepend = st::prepend(tuple, 0);   // (0, 1, 2, 3, 4, 5)
 
 // Reverse
-auto reversed = st::reverse(tuple);  // tuple_t(5, 4, 3, 2, 1)
+auto reverse = st::reverse(tuple);      // (5, 4, 3, 2, 1)
 
 // Select by indexes
-auto selected = st::select(tuple, std::index_sequence<0, 2>{});  // tuple_t(1, 3)
+auto select = st::select(tuple, std::index_sequence<0, 2>());   // (1, 3)
 ```
 
-Prefix scans (running totals):
+**See also:** [head](operations/head.md), [last](operations/last.md), [tail](operations/tail.md),
+[init](operations/init.md), [concat](operations/concat.md), [reverse](operations/reverse.md),
+[select](operations/select.md)
 
-```cpp
-auto numbers = st::tuple_t(1, 2, 3, 4);
-
-// Left scan
-auto left_scan = st::scanl(numbers, [](auto acc, auto x) { return acc + x; }, 0);
-// Results in tuple_t(0, 1, 3, 6, 10)
-
-// Right scan
-auto right_scan = st::scanr(numbers, [](auto x, auto acc) { return x + acc; }, 0);
-// Results in tuple_t(10, 9, 7, 4, 0)
-```
-
-### Iteration
+### Iterating Operations
+Iterate over elements:
 
 ```cpp
 auto tuple = st::tuple_t(1, 2, 3, 4);
 
-// For-each (side effects)
-st::foreach(tuple, [](auto x) {
-    std::cout << x << " ";
-});  // Prints: 1 2 3 4
+auto print = [](auto x) { std::cout << x << " "; };
 
-// Reverse for-each (side effects)
-int sum = 0;
-st::rforeach(tuple, [&](auto x) {
-    sum += x;
-});  // sum == 10 (4 + 3 + 2 + 1)
+// Iterate elements with side-effects
+st::foreach(tuple, print);  // Prints: 1 2 3 4
+st::rforeach(tuple, print); // Prints: 4 3 2 1
 ```
+
+**See also:** [foreach](operations/foreach.md)
 
 ## Advanced Examples
 
-### Geometry Calculations
-
-```cpp
-#include <cmath>
-#include <supertuple/api.h>
-
-namespace st = supertuple;
-
-template <size_t D>
-using point_t = st::ntuple_t<double, D>;
-
-template <size_t D>
-double length(const point_t<D>& p) {
-    return std::sqrt(st::foldl(
-        st::apply(p, [](auto x) { return x * x; }),
-        [](auto acc, auto x) { return acc + x; }
-    ));
-}
-
-template <size_t D>
-double distance(const point_t<D>& a, const point_t<D>& b) {
-    return std::sqrt(st::foldl(
-        st::zipwith(a, b, [](auto x, auto y) { return std::pow(y - x, 2); }),
-        [](auto acc, auto x) { return acc + x; }
-    ));
-}
-
-// Usage
-auto p1 = point_t<3>(1, 2, 3);
-auto p2 = point_t<3>(4, 5, 6);
-auto len = length(p1);
-auto dist = distance(p1, p2);
-```
-
-### Data Processing Pipeline
-
-```cpp
-auto data = st::tuple_t(1, 2, 3, 4, 5);
-
-// Pipeline: filter even numbers, square them, sum
-auto result = st::foldl(
-    st::apply(
-        st::tuple_t(2, 4),  // Filtered even numbers
-        [](auto x) { return x * x; }  // Square each
-    ),
-    [](auto acc, auto x) { return acc + x; },  // Sum
-    0
-);  // Result: 4 + 16 = 20
-```
+For advanced examples, please check [examples](examples.md).
 
 ## Performance Notes
 

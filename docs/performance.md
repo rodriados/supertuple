@@ -43,20 +43,19 @@ g++ -O3 -S code.cpp
 | Operation | Complexity | Notes |
 |-----------|-----------|-------|
 | `get<I>` | O(1) | Direct field access |
-| `set<I>` | O(N) | Creates new tuple (all elements) |
+| `set<I>` | O(1) | Direct field access |
 | `apply` | O(N) | Applies function to each element |
 | `foldl` | O(N) | Processes each element once |
 | `zip` | O(min(N,M)) | Pairs elements |
 | `append` | O(N) | Creates new tuple with all elements |
 | `concat` | O(N+M) | Combines sequences |
 | `reverse` | O(N) | Reorders all elements |
-| `select` | O(K) | K = number of selected indices |
+| `select` | O(K) | Copies K elements |
 
 **Implications:**
-- More operations → longer compilation time
-- Deep nesting of operations → potentially slower builds
-- Large tuples (100+ elements) → noticeable compilation delay
-- Constexpr evaluation might require more build time than runtime equivalents
+- **More operations:** longer compilation time
+- **Deep nesting of operations:** potentially slower builds
+- **Large tuples:** noticeable compilation delay
 
 ### Runtime Complexity
 
@@ -78,10 +77,10 @@ SuperTuple tuples have minimal overhead:
 
 ```cpp
 auto t1 = st::tuple_t(1, 2, 3);
-// Size approximately: sizeof(int) + sizeof(int) + sizeof(int) + possible padding
+// Equivalent to: struct { int[3]; }
 
 auto t2 = st::tuple_t(1, 2.5, true);
-// Size approximately: sizeof(int) + sizeof(double) + sizeof(bool) + potential padding
+// Equivalent to: struct { int; double; bool; }
 
 // Verify actual size
 static_assert(sizeof(t1) <= 3 * sizeof(int));
@@ -126,17 +125,13 @@ st::foreach(point, [](double x) {
 // ✓ GOOD: Computation at compile time
 constexpr auto result = st::foldl(
     st::tuple_t(1, 2, 3),
-    [](auto a, auto b) { return a + b; },
-    0
+    [](auto a, auto b) { return a + b; }
 );
 
-// ✓ BETTER: If you must compute at runtime, help the compiler
+// ✓ GOOD: If you must compute at runtime, help the compiler
 inline auto compute_inline() {
     return st::foldl(data, fn, 0);
 }
-
-// ✗ AVOID: Unnecessary runtime computation
-auto suboptimal = st::foldl(setup_tuple(), expensive_fn, 0);
 ```
 
 ### 2. Perfect Forwarding & Move Semantics
@@ -185,29 +180,7 @@ auto small = st::tuple_t(1, 2, 3);
 auto result = operate(small);  // May be faster as value
 ```
 
-### 5. Avoid Unnecessary Intermediate Tuples
-
-```cpp
-// ✗ INEFFICIENT: Multiple temporary tuples
-auto r1 = st::apply(data, f1);
-auto r2 = st::apply(r1, f2);
-auto r3 = st::foldl(r2, f3, 0);
-
-// ✓ EFFICIENT: Direct composition
-auto result = st::foldl(
-    st::apply(
-        st::apply(data, f1),
-        f2
-    ),
-    f3,
-    0
-);
-
-// ✓ ALSO EFFICIENT: Declare as inline/constexpr
-constexpr auto result = compute_everything();
-```
-
-### 6. Use Homogeneous Tuples for Vectors
+### 5. Use Homogeneous Tuples for Vectors
 
 ```cpp
 // ✓ BETTER: ntuple_t for numeric vectors
@@ -292,68 +265,9 @@ auto pair = st::select(tuple, std::index_sequence<1, 3>{});  // Just 2 elements
 
 ---
 
-## Benchmarking Tips
-
-### Simple Benchmark Template
-
-```cpp
-#include <chrono>
-#include <supertuple/api.h>
-
-namespace st = supertuple;
-
-int main() {
-    auto data = st::ntuple_t<double, 1000>(...init data...);
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < 1000000; ++i) {
-        auto result = st::foldl(data, add, 0.0);
-        [[maybe_unused]] volatile auto _ = result;  // Prevent optimization
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    std::cout << "Time: " << duration.count() << "ms\n";
-}
-```
-
-### Compiler Optimization Flags
-
-Always benchmark with optimizations:
-
-```bash
-# GCC/Clang
-g++ -O2 benchmark.cpp -o benchmark_O2
-g++ -O3 benchmark.cpp -o benchmark_O3
-g++ -Ofast benchmark.cpp -o benchmark_ofast
-
-# MSVC
-cl /O2 benchmark.cpp
-cl /Ox benchmark.cpp
-```
-
-### Compare with Alternatives
-
-```cpp
-// Benchmark SuperTuple
-auto result_st = st::foldl(data, add, 0);
-
-// Benchmark std::tuple (if applicable)
-auto result_std = std::get<0>(std::tuple(...));
-
-// Benchmark hand-written equivalent
-int result_manual = /* ... */;
-
-// Compare generated assembly
-```
-
----
-
 ## Known Limitations & Workarounds
 
-### Deep Template Nesting → Slow Compilation
+### Deep Template Nesting: Slow Compilation
 
 **Problem:** Complex compositions compile slowly.
 
@@ -399,43 +313,6 @@ auto known_size = st::ntuple_t<int, 5>(...);
 // For unknown size: use std::vector
 std::vector<int> dynamic(n);
 ```
-
----
-
-## Compiler-Specific Notes
-
-### GCC
-
-- Excellent constexpr optimization
-- Good vectorization of homogeneous operations
-- May require `-std=c++17` or higher
-
-### Clang
-
-- Aggressive inlining and optimization
-- Better constexpr time tracking
-- Good diagnostics for template issues
-
-### MSVC
-
-- Strong constexpr support
-- Good loop unrolling
-- May require `/std:c++latest` for full C++20 support
-
----
-
-## Summary: Performance Checklist
-
-- [ ] Use constexpr when computation is compile-time determinable
-- [ ] Enable compiler optimizations (`-O2` or `-O3`)
-- [ ] Use move semantics for temporary tuples
-- [ ] Avoid unnecessary intermediate tuples
-- [ ] Use `ntuple_t` for numeric vectors
-- [ ] Mark functions const when appropriate
-- [ ] Benchmark with `-O2` or `-O3` optimizations
-- [ ] Compare assembly with manual equivalents
-- [ ] Break complex compositions if compilation is slow
-- [ ] Use `std::vector` for dynamic-sized collections
 
 ---
 
