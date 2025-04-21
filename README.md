@@ -1,6 +1,6 @@
 # SuperTuple
 ![license MIT](https://img.shields.io/badge/license-MIT-lightgrey.svg)
-![version dev](https://img.shields.io/badge/version-1.1-green.svg)
+![version dev](https://img.shields.io/badge/version-1.2-green.svg)
 
 A powerful yet lightweight C++17 tuple implementation for functional-programming.
 
@@ -47,6 +47,11 @@ constexpr auto result = supertuple::foldl(
   , [](auto acc, auto x) { return acc + x; }
 ); // result == 6 (1 + 2 + 3)
 ```
+
+## Documentation
+
+Please, read our [Documentation](docs/README.md) for details on usage and functions
+API currently available.
 
 ## License
 
